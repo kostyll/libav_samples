@@ -32,3 +32,4 @@ http://www.kaij.org/blog/?p=98
 http://www.dranger.com/ffmpeg/tutorial01.html
 http://leixiaohua1020.github.io/
 http://habrahabr.ru/post/137793/
+http://habrahabr.ru/post/138426/
