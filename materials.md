@@ -26,3 +26,9 @@ segment-1435054549-2040804.ts
 #EXTINF:9.463967,no desc
 segment-1435054549-2040805.ts
 
+https://github.com/mikeboers/PyAV.git
+http://code.google.com/p/pyffmpeg/
+http://www.kaij.org/blog/?p=98
+http://www.dranger.com/ffmpeg/tutorial01.html
+http://leixiaohua1020.github.io/
+http://habrahabr.ru/post/137793/
