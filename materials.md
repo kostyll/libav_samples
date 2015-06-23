@@ -25,4 +25,4 @@ segment-1435054549-2040804.ts
 #EXT-X-PROGRAM-DATE-TIME:2015-06-23T14:45:23Z
 #EXTINF:9.463967,no desc
 segment-1435054549-2040805.ts
-(env)andrew@vasyltsiv:~/workspace/ffmpeg_experiments/simple_ffmpeg_player0$ 
+
