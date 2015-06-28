@@ -33,3 +33,12 @@ http://www.dranger.com/ffmpeg/tutorial01.html
 http://leixiaohua1020.github.io/
 http://habrahabr.ru/post/137793/
 http://habrahabr.ru/post/138426/
+https://gist.github.com/xlphs/9895065
+
+*****************************************************************
+
+wine ~/.wine/drive_c/windows/system32/cmd.exe
+
+set PATH=%PATH%;z:\media\andrew\9A50D0DD50D0C165\mingw_2\bin
+
+H:\workspace\libav_samples>mingw32-gcc simple_ffmpeg_player.c -Iz:\opt\SDL-1.2.13\include\SDL -I ffmpeg-20150627-git-7728d23-win32-dev\include -L ffmpeg-20150627-git-7728d23-win32-dev\lib -lavformat -lavcodec  -L z:\opt\SDL-1.2.13\lib -lswscale -lavutil -lmingw32 -lSDLMain -lSDL
