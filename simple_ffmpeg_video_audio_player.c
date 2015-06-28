@@ -18,6 +18,7 @@
 #include <SDL.h>
 
 #define SDL_AUDIO_BUFFER_SIZE 1024
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
 #define AUDIO_BUF_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2)
 #define MAX_AUDIO_BUF_SIZE (AVCODEC_MAX_AUDIO_FRAME_SIZE * 4)
 /* no AV sync correction is done if below the AV sync threshold */
