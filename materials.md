@@ -33,12 +33,27 @@ http://www.dranger.com/ffmpeg/tutorial01.html
 http://leixiaohua1020.github.io/
 http://habrahabr.ru/post/137793/
 http://habrahabr.ru/post/138426/
-https://gist.github.com/xlphs/9895065
 
-*****************************************************************
+./simple_ffmpeg_video_audio_player http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8
 
-wine ~/.wine/drive_c/windows/system32/cmd.exe
+*1**** FFMPEG INSTALL **********
+https://gist.github.com/kostyll/6b2da8c008b8e0e21056
 
-set PATH=%PATH%;z:\media\andrew\9A50D0DD50D0C165\mingw_2\bin
+*2*** FFMPEG compile ***********
+https://kdenlive.org/download-source#dependencies
 
-H:\workspace\libav_samples>mingw32-gcc simple_ffmpeg_player.c -Iz:\opt\SDL-1.2.13\include\SDL -I ffmpeg-20150627-git-7728d23-win32-dev\include -L ffmpeg-20150627-git-7728d23-win32-dev\lib -lavformat -lavcodec  -L z:\opt\SDL-1.2.13\lib -lswscale -lavutil -lmingw32 -lSDLMain -lSDL
+./configure --prefix=/usr --enable-shared --enable-libmp3lame --enable-gpl --enable-libfaac --enable-libvorbis --enable-pthreads --enable-libfaac --enable-libxvid --enable-x11grab --enable-libgsm --enable-libx264 --enable-libtheora --enable-libdc1394 --enable-nonfree --disable-stripping --enable-avfilter --enable-libschroedinger --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-version3 --enable-libvpx
+
+make -j3
+
+sudo make install
+****************************************
+
+gcc -o simple_ffmpeg_player simple_ffmpeg_player.c -I/usr/include/SDL -lSDL -I ffmpeg-2.7.1/libavutil/ -I ffmpeg-2.7.1/libavcodec/ -I ffmpeg-2.7.1/libswscale/ -I ffmpeg-2.7.1/libavformat/ -L ffmpeg-2.7.1/libavutil/ -L ffmpeg-2.7.1/libavcodec/ -L ffmpeg-2.7.1/libavformat/ -L ffmpeg-2.7.1/libswscale/ -lavutil -lavutil -lavformat -lrtmp -lvpx -lswscale
+./simple_ffmpeg_player http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8
+
+****************
+http://www.iakovlev.org/index.html?p=1403
+https://mafayyaz.wordpress.com/2013/09/05/ffmpeg-sample-to-decode-video-using-libavformat/
+http://www.cyberforum.ru/cpp/thread938475.html
+http://dranger.com/ffmpeg/functions.html#av_read_frame

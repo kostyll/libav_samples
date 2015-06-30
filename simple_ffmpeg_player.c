@@ -4,17 +4,65 @@
  */
 #include <stdio.h>
 
+#include <signal.h>     /* Signal handling */
+
 #include <SDL.h>
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavutil/avutil.h>
+
+FILE * f;
+
+/* Our own SIGTERM handler */
+void mysigint()
+{
+    printf("I caught the SIGINT signal!\n");
+    fclose(f);
+    exit(0);
+}
+
+/* Our own SIGKILL handler */
+void mysigkill()
+{
+    printf("I caught the SIGKILL signal!\n");
+    fclose(f);
+    exit(0);
+}
+
+/* Our own SIGHUP handler */
+void mysighup()
+{
+    printf("I caught the SIGHUP signal!\n");
+    fclose(f);
+    exit(0);
+}
+
+/* Our own SIGTERM handler */
+void mysigterm()
+{
+    printf("I caught the SIGTERM signal!\n");
+    fclose(f);
+    exit(0);
+}
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("Usage: %s filename\n", argv[0]);
         return 0;
     }
+    f = fopen("002.avi", "wb");
+    if (signal(SIGINT, mysigint) == SIG_ERR)
+       printf("Cannot handle SIGINT!\n");
+    if (signal(SIGHUP, mysighup) == SIG_ERR)
+       printf("Cannot handle SIGHUP!\n");
+    if (signal(SIGTERM, mysigterm) == SIG_ERR)
+       printf("Cannot handle SIGTERM!\n");
+
+    /* can SIGKILL be handled by our own function? */
+    if (signal(SIGKILL, mysigkill) == SIG_ERR)
+       printf("Cannot handle SIGKILL!\n");
 
     // Register all available file formats and codecs
     av_register_all();
@@ -87,12 +135,75 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+
     AVFrame* frame = avcodec_alloc_frame();
     AVPacket packet;
+    AVPacket packet_copy;
+
+    // preparing output ...
+    int i, ret;
+    char * outputfile = "test.mpg";
+    AVFormatContext * oformat_context = NULL;
+    AVOutputFormat *ofmt = NULL;
+    avformat_alloc_output_context2(&oformat_context, NULL, NULL, outputfile);
+    if (!oformat_context) {
+        fprintf(stderr, "Could not create output context\n");
+        ret = AVERROR_UNKNOWN;
+        return (-1);
+    };
+    ofmt = oformat_context->oformat;
+
+    for (i = 0; i < format_context->nb_streams; i++) {
+        AVStream *in_stream = format_context->streams[i];
+        AVStream *out_stream = avformat_new_stream(oformat_context, in_stream->codec->codec);
+        if (!out_stream) {
+            fprintf(stderr, "Failed allocating output stream\n");
+            ret = AVERROR_UNKNOWN;
+            return (-1);
+        }
+        ret = avcodec_copy_context(out_stream->codec, in_stream->codec);
+        if (ret < 0) {
+            fprintf(stderr, "Failed to copy context from input to output stream codec context\n");
+            return (-1);
+        }
+        out_stream->codec->codec_tag = 0;
+        if (oformat_context->oformat->flags & AVFMT_GLOBALHEADER)
+            out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    }
+    av_dump_format(oformat_context, 0, outputfile, 1);
+    if (!(ofmt->flags & AVFMT_NOFILE)) {
+        ret = avio_open(&oformat_context->pb, outputfile, AVIO_FLAG_WRITE);
+        if (ret < 0) {
+            fprintf(stderr, "Could not open output file '%s'", outputfile);
+            return (-1);
+        }
+    }
+    ret = avformat_write_header(oformat_context, NULL);
+    if (ret < 0) {
+        fprintf(stderr, "Error occurred when opening output file\n");
+        return (-1);
+    };
+    AVStream *in_stream, *out_stream;
+
+
     while (av_read_frame(format_context, &packet) >= 0) {
+        av_copy_packet(&packet_copy, &packet);
+        // in_stream  = format_context->streams[packet_copy.stream_index];
+        // out_stream = oformat_context->streams[packet_copy.stream_index];
+
+        // packet_copy.pts = av_rescale_q_rnd(packet_copy.pts, in_stream->time_base, out_stream->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+        // packet_copy.dts = av_rescale_q_rnd(packet_copy.dts, in_stream->time_base, out_stream->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+        // packet_copy.duration = av_rescale_q(packet_copy.duration, in_stream->time_base, out_stream->time_base);
+        // packet_copy.pos = -1;
+        ret = av_interleaved_write_frame(oformat_context, &packet_copy);
+        if (ret < 0) {
+            fprintf(stderr, "Error muxing packet\n");
+        };
+
         if (packet.stream_index == video_stream) {
             // Video stream packet
             int frame_finished;
+
             avcodec_decode_video2(codec_context, frame, &frame_finished, &packet);
 
             if (frame_finished) {
@@ -122,6 +233,10 @@ int main(int argc, char* argv[]) {
                 rect.w = codec_context->width;
                 rect.h = codec_context->height;
                 SDL_DisplayYUVOverlay(bmp, &rect);
+
+                printf("%d\n", packet.size);
+                fwrite(packet.data, 1, packet.size, f);
+
             }
         }
 
@@ -136,6 +251,14 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    fclose(f);
+
+    av_write_trailer(oformat_context);
+
+    if (oformat_context && !(ofmt->flags & AVFMT_NOFILE))
+        avio_closep(&oformat_context->pb);
+    avformat_free_context(oformat_context);
 
     sws_freeContext(img_convert_context);
 
