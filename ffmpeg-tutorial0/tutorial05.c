@@ -1081,6 +1081,10 @@ int main(int argc, char *argv[]) {
     SDL_Event       event;
 
     VideoState      *is;
+	
+	char * parent_window_arg = NULL;
+	unsigned int parent_window = 0;
+	printf("start!\n"); 
 
     is = av_mallocz(sizeof(VideoState));
 
@@ -1108,6 +1112,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "SDL: could not set video mode - exiting\n");
         exit(1);
     }
+	printf("********************");
+	fflush(stdout);
+	if (argc == 3) {
+		parent_window_arg = argv[2];
+		parent_window = atoi(parent_window_arg);
+		printf("parent_window arg = %s, descriptor is %d\n", parent_window_arg, parent_window);
+	}
 
     av_strlcpy(is->filename, argv[1], 1024);
 
