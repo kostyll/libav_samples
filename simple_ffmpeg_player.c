@@ -55,14 +55,14 @@ int main(int argc, char* argv[]) {
     f = fopen("002.avi", "wb");
     if (signal(SIGINT, mysigint) == SIG_ERR)
        printf("Cannot handle SIGINT!\n");
-    if (signal(SIGHUP, mysighup) == SIG_ERR)
-       printf("Cannot handle SIGHUP!\n");
-    if (signal(SIGTERM, mysigterm) == SIG_ERR)
-       printf("Cannot handle SIGTERM!\n");
+    //if (signal(SIGHUP, mysighup) == SIG_ERR)
+    //   printf("Cannot handle SIGHUP!\n");
+    //if (signal(SIGTERM, mysigterm) == SIG_ERR)
+    //   printf("Cannot handle SIGTERM!\n");
 
     /* can SIGKILL be handled by our own function? */
-    if (signal(SIGKILL, mysigkill) == SIG_ERR)
-       printf("Cannot handle SIGKILL!\n");
+    //if (signal(SIGKILL, mysigkill) == SIG_ERR)
+    //   printf("Cannot handle SIGKILL!\n");
 
     // Register all available file formats and codecs
     av_register_all();
