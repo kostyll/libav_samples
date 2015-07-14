@@ -57,3 +57,6 @@ http://www.iakovlev.org/index.html?p=1403
 https://mafayyaz.wordpress.com/2013/09/05/ffmpeg-sample-to-decode-video-using-libavformat/
 http://www.cyberforum.ru/cpp/thread938475.html
 http://dranger.com/ffmpeg/functions.html#av_read_frame
+
+
+http://tdistler.com/2011/04/20/rendering-video-with-gdi-example
