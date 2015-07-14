@@ -13,7 +13,7 @@ FFMPEG_PKGCONFIG_RESAMPLE=libswresample
 CC:=gcc
 INCLUDES:=$(shell pkg-config --cflags libavformat libavcodec libswscale libavutil $(FFMPEG_PKGCONFIG_RESAMPLE) sdl) -I..\SDL-devel-1.2.15-mingw32\SDL-1.2.15\include\SDL -I..\ffmpeg-20150712-git-944a1aa-win32-dev\ffmpeg-20150712-git-944a1aa-win32-dev\include
 CFLAGS:=-Wall -ggdb $(FFMPEG_RESAMPLE) -std=c99 
-LDFLAGS:=$(shell pkg-config --libs libavformat libavcodec libswscale libavutil $(FFMPEG_PKGCONFIG_RESAMPLE) sdl) -lm -L..\SDL-devel-1.2.15-mingw32\SDL-1.2.15\lib -L..\ffmpeg-20150712-git-944a1aa-win32-dev\ffmpeg-20150712-git-944a1aa-win32-dev\lib -lavformat -lavcodec -lswresample -lswscale -lavutil -lmingw32 -lSDLmain -lSDL -mwindows
+LDFLAGS:=$(shell pkg-config --libs libavformat libavcodec libswscale libavutil $(FFMPEG_PKGCONFIG_RESAMPLE) sdl) -lm -L..\SDL-devel-1.2.15-mingw32\SDL-1.2.15\lib -L..\ffmpeg-20150712-git-944a1aa-win32-dev\ffmpeg-20150712-git-944a1aa-win32-dev\lib -lavformat -lavcodec -lswresample -lswscale -lavutil -lmingw32 -lSDLmain -lSDL -mwindows -lpthread
 EXE:=tutorial01.out tutorial02.out tutorial03.out tutorial04.out\
 	tutorial05.out tutorial06.out tutorial07.out
 
