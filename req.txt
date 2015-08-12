@@ -1,0 +1,1 @@
+live.hls.vgtrk.cdnvideo.ru/live/smil:r24.smil/chunklist_b400000.m3u8
