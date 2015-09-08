@@ -28,10 +28,12 @@
 #include <math.h>
 
 #include "libavformat/avformat.h"
+#include "libavutil/avutil.h" 
+#include "libavcodec/avcodec.h"
 #include "libswscale/swscale.h"
 
 #undef exit
-
+ 
 /* 5 seconds stream duration */
 #define STREAM_DURATION   5.0
 #define STREAM_FRAME_RATE 25 /* 25 images/s */

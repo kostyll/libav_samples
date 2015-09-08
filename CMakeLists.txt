@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.1)
 
 project (libav_samples)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+
 include_directories(
     /usr/include/SDL
     target_usr/include
