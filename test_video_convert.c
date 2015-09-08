@@ -172,10 +172,10 @@ int main(int argc, char ** argv) {
     ovstream = avformat_new_stream(ofmt_ctx, ovcodec);
     ovcodec_ctx = ovstream->codec;
     ovcodec_ctx->codec_id = vcodec_id;
-    ovcodec_ctx->bit_rate = 400000;
+    ovcodec_ctx->bit_rate = ivcodec_ctx->bit_rate;
     /* Resolution must be a multiple of two. */
-    ovcodec_ctx->width    = 352;
-    ovcodec_ctx->height   = 288;
+    ovcodec_ctx->width    = ivcodec_ctx->width;
+    ovcodec_ctx->height   = ivcodec_ctx->height;
     /* timebase: This is the fundamental unit of time (in seconds) in terms
      * of which frame timestamps are represented. For fixed-fps content,
      * timebase should be 1/framerate and timestamp increments should be
