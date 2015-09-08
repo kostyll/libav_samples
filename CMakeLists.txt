@@ -21,12 +21,12 @@ set(SOURCE_OUTPUT_EXAMPLE "output-example.c")
 
 add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 
-add_executable(output-example ${SOURCE_OUTPUT_EXAMPLE})
+# add_executable(output-example ${SOURCE_OUTPUT_EXAMPLE})
 
 target_link_libraries(
     simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
 )
 
-target_link_libraries(
-    output-example -lavformat -lswscale -lavcodec -lavutil
-)
+# target_link_libraries(
+#     output-example -lavformat -lswscale -lavcodec -lavutil
+# )
