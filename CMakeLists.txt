@@ -16,15 +16,21 @@ link_directories(
 )
 
 set(SOURCE_SIMPLE_FFMPEG_PLAYER "simple_ffmpeg_player.c")
+set(SOURCE_SIMPLE_FFMPEG_VA_PLAYER "simple_ffmpeg_video_audio_player.c")
 
 set(SOURCE_OUTPUT_EXAMPLE "output-example.c")
 
 add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
+add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
 
 # add_executable(output-example ${SOURCE_OUTPUT_EXAMPLE})
 
 target_link_libraries(
     simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+)
+
+target_link_libraries(
+    simple_ffmpeg_video_audio_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
 )
 
 # target_link_libraries(
@@ -48,7 +54,7 @@ set(list_sources
 foreach(source ${list_sources})
     set(src_file "${src_dir}${source}.c")
     set(dst_file "${src_dir}${source}")
-    message(STATUS "${source}")
+    # message(STATUS "${source}")
     add_executable(
             ${dst_file}
             ${src_file}
