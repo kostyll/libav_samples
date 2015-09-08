@@ -30,3 +30,30 @@ target_link_libraries(
 # target_link_libraries(
 #     output-example -lavformat -lswscale -lavcodec -lavutil
 # )
+
+#  MAKING ffmpeg-tutorial0
+
+set(src_dir "ffmpeg-tutorial0/")
+
+set(list_sources 
+    "tutorial01" 
+    "tutorial02" 
+    "tutorial03" 
+    "tutorial04" 
+    # "tutorial05" 
+    "tutorial06" 
+    "tutorial07" 
+)
+
+foreach(source ${list_sources})
+    set(src_file "${src_dir}${source}.c")
+    set(dst_file "${src_dir}${source}")
+    message(STATUS "${source}")
+    add_executable(
+            ${dst_file}
+            ${src_file}
+        )
+    target_link_libraries(
+        ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+    )
+endforeach(source list_sources)
