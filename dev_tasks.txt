@@ -1,1 +1,3 @@
-
+[+] video frames saving add
+[-] audio frames saving add
+[-] syncronization video-audio add
