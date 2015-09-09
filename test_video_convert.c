@@ -342,6 +342,8 @@ int main(int argc, char ** argv) {
     oacodec_ctx->sample_rate = iacodec_ctx->sample_rate;
     oacodec_ctx->channels    = 2;
     oacodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;
+    oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
+    oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;  
 
     if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
         fprintf(stdout, "ASASASASASA\n");
@@ -371,6 +373,8 @@ int main(int argc, char ** argv) {
 
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
+
+    oaudio_st->pts.val = ovideo_st->pts.val;
 
     fprintf(stdout, "ovstream_ctx = %p\n", ovstream->codec);
     fprintf(stdout, "oastream_ctx = %p\n", oastream->codec);
@@ -424,6 +428,7 @@ int main(int argc, char ** argv) {
        exit(1);
    }
     fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
+    int counter = 0;
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
         // av_copy_packet(&packet_copy, &packet);
@@ -434,6 +439,19 @@ int main(int argc, char ** argv) {
         // };
 
         // fprintf(stdout, "READ new PACKET\n");
+        if (oaudio_st) {
+            audio_pts = (double)oaudio_st->pts.val * oaudio_st->time_base.num / oaudio_st->time_base.den;
+            fprintf(stdout, "SETTING audio_pts to %f with oaudio_st->pts.val %f\n", audio_pts, (double)oaudio_st->pts.val);
+        }
+        else {
+            fprintf(stdout, "SETTING audio_pts to 0\n");
+            audio_pts = 0.0;
+        }
+
+        if (ovideo_st)
+            video_pts = (double)ovideo_st->pts.val * ovideo_st->time_base.num / ovideo_st->time_base.den;
+        else
+            video_pts = 0.0;        
 
         if (packet.stream_index == video_stream)
         {
@@ -448,15 +466,7 @@ int main(int argc, char ** argv) {
                 av_init_packet(&target_packet);
                 // fprintf(stdout, "FRAME_FINISHED\n");
                 /* compute current audio and video time */
-                if (oaudio_st)
-                    audio_pts = (double)oaudio_st->pts.val * oaudio_st->time_base.num / oaudio_st->time_base.den;
-                else
-                    audio_pts = 0.0;
 
-                if (ovideo_st)
-                    video_pts = (double)ovideo_st->pts.val * ovideo_st->time_base.num / ovideo_st->time_base.den;
-                else
-                    video_pts = 0.0;
 
                 // fprintf(stdout, "video_pts = %f, oudio_pts = %f \n", video_pts, audio_pts);
 
@@ -500,15 +510,6 @@ int main(int argc, char ** argv) {
 
             if (frame_finished == 1) {
                 av_init_packet(&target_packet);
-                if (oaudio_st)
-                    audio_pts = (double)oaudio_st->pts.val * oaudio_st->time_base.num / oaudio_st->time_base.den;
-                else
-                    audio_pts = 0.0;
-
-                if (ovideo_st)
-                    video_pts = (double)ovideo_st->pts.val * ovideo_st->time_base.num / ovideo_st->time_base.den;
-                else
-                    video_pts = 0.0;
                 fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
                 // av_init_packet(daframe);
                 // aframe->frame_size = aframe->nb_samples;
@@ -563,17 +564,19 @@ int main(int argc, char ** argv) {
                     exit(1);
                 }
                 fprintf(stdout, "AUDIO Encoding...\n");
-                avcodec_encode_audio2(oacodec_ctx, &target_packet, &daframe, &frame_encoded);
+                avcodec_encode_audio2(oacodec_ctx, &target_packet, daframe, &frame_encoded);
 
                 fprintf(stdout, "Done with %d pkt_size = %d!\n", frame_encoded, target_packet.size);
-                if (frame_encoded == 0) {
+                if (frame_encoded) {
                     fprintf(stdout, "AUDIO ENCODED with data_size = %d\n", target_packet.size);
                     fprintf(stdout, "video_pts = %f, oudio_pts = %f \n", video_pts, audio_pts);
                     // target_packet.pts = av_frame_get_best_effort_timestamp(daframe);
+                    target_packet.pts = video_pts+0.1;
                     // target_packet.dts = av_freep
                     // target_packet.dts = ofmt_ctx->streams[target_packet.stream_index]->cur_dts + 1 ;
-                    av_write_frame(ofmt_ctx, &target_packet);
-                    fprintf(stdout, "VIDEO WRITTEN\n");
+                    // target_packet.dts = packet.dts;
+                    // av_write_frame(ofmt_ctx, &target_packet);
+                    fprintf(stdout, "AUDIO WRITTEN\n");
                     // av_free_packet(&packet);
                 }
                 av_free_packet(&target_packet);                
