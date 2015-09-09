@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -60,6 +59,31 @@ int get_audio_stream(AVFormatContext * fmt_ctx) {
         audio_stream = -1;
     }
     return audio_stream;
+}
+
+
+static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
+                                  uint64_t channel_layout,
+                                  int sample_rate, int nb_samples)
+{
+    AVFrame *frame = av_frame_alloc();
+    int ret;
+    if (!frame) {
+        fprintf(stderr, "Error allocating an audio frame\n");
+        exit(1);
+    }
+    frame->format = sample_fmt;
+    frame->channel_layout = channel_layout;
+    frame->sample_rate = sample_rate;
+    frame->nb_samples = nb_samples;
+    if (nb_samples) {
+        ret = av_frame_get_buffer(frame, 0);
+        if (ret < 0) {
+            fprintf(stderr, "Error allocating an audio buffer\n");
+            exit(1);
+        }
+    }
+    return frame;
 }
 
 
@@ -180,13 +204,13 @@ int main(int argc, char ** argv) {
      * of which frame timestamps are represented. For fixed-fps content,
      * timebase should be 1/framerate and timestamp increments should be
      * identical to 1. */
-    ovcodec_ctx->time_base.den = STREAM_FRAME_RATE;
-    ovcodec_ctx->time_base.num = 1;
-    ovcodec_ctx->gop_size      = 12; /* emit one intra frame every twelve frames at most */
-    ovcodec_ctx->pix_fmt       = STREAM_PIX_FMT;
+    ovcodec_ctx->time_base.den = ivcodec_ctx->time_base.den;
+    ovcodec_ctx->time_base.num = ivcodec_ctx->time_base.num;
+    ovcodec_ctx->gop_size      = ivcodec_ctx->gop_size; /* emit one intra frame every twelve frames at most */
+    ovcodec_ctx->pix_fmt       = ivcodec_ctx->pix_fmt;
     if (ovcodec_ctx->codec_id == AV_CODEC_ID_MPEG2VIDEO) {
         /* just for testing, we also add B frames */
-        ovcodec_ctx->max_b_frames = 2;
+        ovcodec_ctx->max_b_frames = ivcodec_ctx->max_b_frames;
     }
     if (ovcodec_ctx->codec_id == AV_CODEC_ID_MPEG1VIDEO) {
         /* Needed to avoid using macroblocks in which some coeffs overflow.
@@ -199,8 +223,8 @@ int main(int argc, char ** argv) {
     oacodec_ctx = oastream->codec;
     oacodec_ctx->sample_fmt  = oacodec->sample_fmts ?
     oacodec->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
-    oacodec_ctx->bit_rate    = 64000;
-    oacodec_ctx->sample_rate = 44100;
+    oacodec_ctx->bit_rate    = iacodec_ctx->bit_rate;
+    oacodec_ctx->sample_rate = iacodec_ctx->sample_rate;
     oacodec_ctx->channels    = 2;
     oacodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;
 
@@ -226,6 +250,7 @@ int main(int argc, char ** argv) {
 
     AVStream * ovideo_st = NULL;
     AVStream * oaudio_st = NULL;
+    AVFrame* aframe = NULL;
 
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
@@ -298,21 +323,65 @@ int main(int argc, char ** argv) {
                 // } else { };
                 // fprintf(stdout, "Encoding ....\n");
                 avcodec_encode_video2(ovcodec_ctx, &target_packet, frame, &frame_encoded);
-                if (frame_encoded) {
+                if (frame_encoded ) {
                     fprintf(stdout, "video_pts = %f, oudio_pts = %f \n", video_pts, audio_pts);
                     target_packet.pts = av_frame_get_best_effort_timestamp(frame);
-                    fprintf(stdout, "ENCODED with data_size = %d\n", target_packet.size);
+                    fprintf(stdout, "VIDEO ENCODED with data_size = %d\n", target_packet.size);
 
                     av_write_frame(ofmt_ctx, &target_packet);
                     // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                    fprintf(stdout, "WRITTEN\n");
+                    fprintf(stdout, "VIDEO WRITTEN\n");
                     av_free_packet(&target_packet);
                     // }
+                    av_free_packet(&packet);
                 }
-                av_free_packet(&packet);
+                
 
             }
 
+        } else if (packet.stream_index == audio_stream)
+        {
+            int frame_finished;
+            int frame_encoded;
+            // aframe = alloc_audio_frame(
+            //     oacodec_ctx->sample_fmt,
+            //     oacodec_ctx->channel_layout,
+            //     oacodec_ctx->sample_rate,
+            //     1024
+            // );
+            aframe = av_frame_alloc();
+            fprintf(stdout, "AUDIO Decoding...\n");
+            avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet);
+            fprintf(stdout, "AUDIO DECODED\n");
+
+            if (frame_finished == 1) {
+                av_init_packet(&target_packet);
+                if (oaudio_st)
+                    audio_pts = (double)oaudio_st->pts.val * oaudio_st->time_base.num / oaudio_st->time_base.den;
+                else
+                    audio_pts = 0.0;
+
+                if (ovideo_st)
+                    video_pts = (double)ovideo_st->pts.val * ovideo_st->time_base.num / ovideo_st->time_base.den;
+                else
+                    video_pts = 0.0;
+                fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
+                // aframe->frame_size = aframe->nb_samples;
+                fprintf(stdout, "AUDIO Encoding...\n");
+                // if (oacodec_ctx->frame_size > aframe->nb_samples) continue;
+                // oacodec_ctx->frame_size = aframe->nb_samples;
+                // aframe->nb_samples = oacodec_ctx->frame_size;
+                avcodec_encode_audio2(oacodec_ctx, &target_packet, aframe, &frame_encoded);
+                if (frame_encoded) {
+                    fprintf(stdout, "AUDIO ENCODED with data_size = %d\n", target_packet.size);
+                    fprintf(stdout, "video_pts = %f, oudio_pts = %f \n", video_pts, audio_pts);
+                    target_packet.pts = av_frame_get_best_effort_timestamp(frame);
+                    av_write_frame(ofmt_ctx, &target_packet);
+                    fprintf(stdout, "VIDEO WRITTEN\n");
+                    av_free_packet(&target_packet);
+                    av_free_packet(&packet);
+                }
+            }
         }
 
         // Free the packet that was allocated by av_read_frame
