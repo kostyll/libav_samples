@@ -9,6 +9,23 @@
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
 #define STREAM_DURATION   5.0
 
+// a wrapper around a single output AVStream
+typedef struct OutputStream {
+    AVStream *st;
+
+    /* pts of the next frame that will be generated */
+    int64_t next_pts;
+    int samples_count;
+
+    AVFrame *frame;
+    AVFrame *tmp_frame;
+
+    float t, tincr, tincr2;
+
+    struct SwsContext *sws_ctx;
+    struct SwrContext *swr_ctx;
+} OutputStream;
+
 
 AVFormatContext * open_input_source(char *source) {
     AVFormatContext * result = NULL;
@@ -86,6 +103,101 @@ static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
     return frame;
 }
 
+void open_audio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg)
+{
+       AVCodecContext *c; 
+       int nb_samples;
+       int ret;
+       AVDictionary *opt = NULL;
+   
+       c = ost->st->codec;
+   
+      /* open it */
+       av_dict_copy(&opt, opt_arg, 0);
+       ret = avcodec_open2(c, codec, &opt);
+       av_dict_free(&opt);
+       if (ret < 0) {
+           fprintf(stderr, "Could not open audio codec: %s\n", av_err2str(ret));
+           exit(1);
+       }
+   
+       /* init signal generator */
+       ost->t     = 0;
+       ost->tincr = 2 * M_PI * 110.0 / c->sample_rate;
+       /* increment frequency by 110 Hz per second */
+       ost->tincr2 = 2 * M_PI * 110.0 / c->sample_rate / c->sample_rate;
+   
+       if (c->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
+           nb_samples = 10000;
+       else
+           nb_samples = c->frame_size;
+   
+       ost->frame     = alloc_audio_frame(c->sample_fmt, c->channel_layout,
+                                          c->sample_rate, nb_samples);
+       ost->tmp_frame = alloc_audio_frame(AV_SAMPLE_FMT_S16, c->channel_layout,
+                                          c->sample_rate, nb_samples);
+  
+       /* create resampler context */
+           ost->swr_ctx = swr_alloc();
+           if (!ost->swr_ctx) {
+               fprintf(stderr, "Could not allocate resampler context\n");
+               exit(1);
+           }
+   
+           /* set options */
+           av_opt_set_int       (ost->swr_ctx, "in_channel_count",   c->channels,       0);
+           av_opt_set_int       (ost->swr_ctx, "in_sample_rate",     c->sample_rate,    0);
+           av_opt_set_sample_fmt(ost->swr_ctx, "in_sample_fmt",      AV_SAMPLE_FMT_S16, 0);
+           av_opt_set_int       (ost->swr_ctx, "out_channel_count",  c->channels,       0);
+           av_opt_set_int       (ost->swr_ctx, "out_sample_rate",    c->sample_rate,    0);
+           av_opt_set_sample_fmt(ost->swr_ctx, "out_sample_fmt",     c->sample_fmt,     0);
+   
+           /* initialize the resampling context */
+           if ((ret = swr_init(ost->swr_ctx)) < 0) {
+               fprintf(stderr, "Failed to initialize the resampling context\n");
+               exit(1);
+           }
+}
+
+ /* Prepare a 16 bit dummy audio frame of 'frame_size' samples and
+  * 'nb_channels' channels. */
+AVFrame *get_audio_frame(OutputStream *ost)
+{
+    AVFrame *frame = ost->tmp_frame;
+    int j, i, v;
+    int16_t *q = (int16_t*)frame->data[0];
+
+    /* check if we want to generate more frames */
+    if (av_compare_ts(ost->next_pts, ost->st->codec->time_base,
+                   STREAM_DURATION, (AVRational){ 1, 1 }) >= 0)
+     return NULL;
+
+    for (j = 0; j <frame->nb_samples; j++) {
+     v = (int)(sin(ost->t) * 10000);
+     for (i = 0; i < ost->st->codec->channels; i++)
+         *q++ = v;
+     ost->t     += ost->tincr;
+     ost->tincr += ost->tincr2;
+    }
+
+    frame->pts = ost->next_pts;
+    ost->next_pts  += frame->nb_samples;
+
+    return frame;
+}
+
+ static int check_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
+{
+    const enum AVSampleFormat *p = codec->sample_fmts;
+
+    while (*p != AV_SAMPLE_FMT_NONE) {
+        if (*p == sample_fmt)
+            return 1;
+        p++;
+    }
+    return 0;
+}
+
 
 int main(int argc, char ** argv) {
 
@@ -154,7 +266,6 @@ int main(int argc, char ** argv) {
     };
     ofmt = ofmt_ctx->oformat;
 
-
     // for (i = 0; i < ifmt_ctx->nb_streams; i++) {
     //     AVStream *in_stream = ifmt_ctx->streams[i];
     //     AVStream *out_stream = avformat_new_stream(ofmt_ctx, in_stream->codec->codec);
@@ -219,8 +330,12 @@ int main(int argc, char ** argv) {
         ovcodec_ctx->mb_decision = 2;
     }
 
+    OutputStream oast = { 0 } ;
     oastream = avformat_new_stream(ofmt_ctx, oacodec);
     oacodec_ctx = oastream->codec;
+    oast.st = oastream;
+    oast.st->id = ofmt_ctx->nb_streams-1;
+
     oacodec_ctx->sample_fmt  = oacodec->sample_fmts ?
     oacodec->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
     oacodec_ctx->bit_rate    = iacodec_ctx->bit_rate;
@@ -229,6 +344,7 @@ int main(int argc, char ** argv) {
     oacodec_ctx->channel_layout = AV_CH_LAYOUT_STEREO;
 
     if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+        fprintf(stdout, "ASASASASASA\n");
         ovstream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
         oastream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
     }
@@ -251,6 +367,7 @@ int main(int argc, char ** argv) {
     AVStream * ovideo_st = NULL;
     AVStream * oaudio_st = NULL;
     AVFrame* aframe = NULL;
+    AVFrame* daframe = av_frame_alloc();
 
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
@@ -271,12 +388,42 @@ int main(int argc, char ** argv) {
             return (-1);
         }
     }    
-
+    fprintf(stdout, "Writing header...\n");
     ret = avformat_write_header(ofmt_ctx, NULL);
     if (ret < 0) {
         fprintf(stderr, "Error occurred when opening output file\n");
         return (-1);
-    };    
+    };
+    // fprintf(stdout, "Getting default audio frame\n");
+    aframe = alloc_audio_frame(
+        iacodec_ctx->sample_fmt,
+        iacodec_ctx->channel_layout,
+        iacodec_ctx->sample_rate,
+        10000
+    );
+    struct SwsContext *sws_ctx;
+    struct SwrContext *swr_ctx;
+    /* create resampler context */
+   swr_ctx = swr_alloc();
+   if (!swr_ctx) {
+       fprintf(stderr, "Could not allocate resampler context\n");
+       exit(1);
+   }
+
+   /* set options */
+   av_opt_set_int       (swr_ctx, "in_channel_count",   iacodec_ctx->channels,       0);
+   av_opt_set_int       (swr_ctx, "in_sample_rate",     iacodec_ctx->sample_rate,    0);
+   av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",      iacodec_ctx->sample_fmt,     0);
+   av_opt_set_int       (swr_ctx, "out_channel_count",  oacodec_ctx->channels,       0);
+   av_opt_set_int       (swr_ctx, "out_sample_rate",    oacodec_ctx->sample_rate,    0);
+   av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     oacodec_ctx->sample_fmt,     0);
+
+   /* initialize the resampling context */
+   if ((ret = swr_init(swr_ctx)) < 0) {
+       fprintf(stderr, "Failed to initialize the resampling context\n");
+       exit(1);
+   }
+    fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
         // av_copy_packet(&packet_copy, &packet);
@@ -343,13 +490,10 @@ int main(int argc, char ** argv) {
         {
             int frame_finished;
             int frame_encoded;
-            // aframe = alloc_audio_frame(
-            //     oacodec_ctx->sample_fmt,
-            //     oacodec_ctx->channel_layout,
-            //     oacodec_ctx->sample_rate,
-            //     1024
-            // );
-            aframe = av_frame_alloc();
+            int dst_nb_samples;
+
+            // aframe = av_frame_alloc();
+            // aframe = get_audio_frame(&oast);
             fprintf(stdout, "AUDIO Decoding...\n");
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet);
             fprintf(stdout, "AUDIO DECODED\n");
@@ -366,21 +510,74 @@ int main(int argc, char ** argv) {
                 else
                     video_pts = 0.0;
                 fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
+                // av_init_packet(daframe);
                 // aframe->frame_size = aframe->nb_samples;
-                fprintf(stdout, "AUDIO Encoding...\n");
+                // int data_size = av_samples_get_buffer_size(
+                //     NULL, 
+                //     oacodec_ctx->channels,
+                //     aframe->nb_samples,
+                //     oacodec_ctx->sample_fmt,
+                //      1
+                // );
                 // if (oacodec_ctx->frame_size > aframe->nb_samples) continue;
                 // oacodec_ctx->frame_size = aframe->nb_samples;
                 // aframe->nb_samples = oacodec_ctx->frame_size;
-                avcodec_encode_audio2(oacodec_ctx, &target_packet, aframe, &frame_encoded);
-                if (frame_encoded) {
+
+                // dst_nb_samples = av_rescale_rnd(
+                //     swr_get_delay(swr_ctx, oacodec_ctx->sample_rate) + frame->nb_samples,
+                //     oacodec_ctx->sample_rate, oacodec_ctx->sample_rate, AV_ROUND_UP);
+                // fprintf(stdout, "dst_nb_samples = %d\n", dst_nb_samples);
+                // // ret = av_frame_make_writable(aframe);
+                // // if (ret < 0)
+                // //    exit(1);
+
+                // // fprintf(stdout, "bbb;\n");
+                // /* convert to destination format */
+                // fprintf(stdout, "swr_convert audio...\n");
+                // ret = swr_convert(swr_ctx,
+                //                  aframe->data, oacodec_ctx->frame_size,
+                //                  (const uint8_t **)aframe->data, aframe->nb_samples);
+                av_init_packet(&target_packet);
+                target_packet.size = 0;
+                target_packet.data = NULL;
+                int nb_samples;
+                if (oacodec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
+                   nb_samples = 10000;
+                else
+                   nb_samples = oacodec_ctx->frame_size;
+                daframe = alloc_audio_frame(
+                    oacodec_ctx->sample_fmt,
+                    oacodec_ctx->channel_layout,
+                    oacodec_ctx->sample_rate,
+                    nb_samples
+                );
+                swr_convert_frame(swr_ctx, aframe, daframe);
+                fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
+                if (ret < 0) {
+                    fprintf(stderr, "Error while converting\n");
+                    exit(1);
+                }
+                if (!check_sample_fmt(oacodec, oacodec_ctx->sample_fmt)) {
+                    fprintf(stderr, "Encoder does not support sample format %s",
+                            av_get_sample_fmt_name(oacodec_ctx->sample_fmt));
+                    exit(1);
+                }
+                fprintf(stdout, "AUDIO Encoding...\n");
+                avcodec_encode_audio2(oacodec_ctx, &target_packet, &daframe, &frame_encoded);
+
+                fprintf(stdout, "Done with %d pkt_size = %d!\n", frame_encoded, target_packet.size);
+                if (frame_encoded == 0) {
                     fprintf(stdout, "AUDIO ENCODED with data_size = %d\n", target_packet.size);
                     fprintf(stdout, "video_pts = %f, oudio_pts = %f \n", video_pts, audio_pts);
-                    target_packet.pts = av_frame_get_best_effort_timestamp(frame);
+                    // target_packet.pts = av_frame_get_best_effort_timestamp(daframe);
+                    // target_packet.dts = av_freep
+                    // target_packet.dts = ofmt_ctx->streams[target_packet.stream_index]->cur_dts + 1 ;
                     av_write_frame(ofmt_ctx, &target_packet);
                     fprintf(stdout, "VIDEO WRITTEN\n");
-                    av_free_packet(&target_packet);
-                    av_free_packet(&packet);
+                    // av_free_packet(&packet);
                 }
+                av_free_packet(&target_packet);                
+
             }
         }
 

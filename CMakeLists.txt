@@ -38,7 +38,9 @@ target_link_libraries(
 )
 
 target_link_libraries(
-    test_video_convert -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+    test_video_convert 
+    -lSDL -lm -ldl -lrt -lpthread -lz 
+    -lavformat -lswscale -lavcodec -lavutil -lswresample
 )
 
 # target_link_libraries(
@@ -68,6 +70,6 @@ foreach(source ${list_sources})
             ${src_file}
         )
     target_link_libraries(
-        ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+        ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil 
     )
 endforeach(source list_sources)
