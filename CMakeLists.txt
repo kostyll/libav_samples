@@ -73,3 +73,27 @@ foreach(source ${list_sources})
         ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil 
     )
 endforeach(source list_sources)
+
+set(src_dir "FFmpegTutorial/")
+
+set(list_sources 
+    "sample01_scaning"
+    "sample02_demuxing"
+    "sample03_remuxing"
+    "sample04_decoding"
+    "sample05_filtering"
+    "sample06_encoding"
+)
+
+foreach(source ${list_sources})
+    set(src_file "${src_dir}${source}.c")
+    set(dst_file "${src_dir}${source}")
+    # message(STATUS "${source}")
+    add_executable(
+            ${dst_file}
+            ${src_file}
+        )
+    target_link_libraries(
+        ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavfilter -lavformat -lswscale -lavcodec -lavutil 
+    )
+endforeach(source list_sources)

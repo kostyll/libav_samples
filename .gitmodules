@@ -1,0 +1,3 @@
+[submodule "FFmpegTutorial"]
+	path = FFmpegTutorial
+	url = git@github.com:kostyll/FFmpegTutorial.git
