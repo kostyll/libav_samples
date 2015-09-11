@@ -516,9 +516,15 @@ int main(int argc, char ** argv) {
 
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet);
 
-            fwrite(aframe->data, 1, aframe->linesize[0], src_pcm);
-
             if (frame_finished ) {
+                int size = av_samples_get_buffer_size (NULL,
+                                                   iacodec_ctx->channels,
+                                                   aframe->nb_samples,
+                                                   iacodec_ctx->sample_fmt,
+                                                   1);
+                fprintf(stdout, "sample_fmt = %d\n", iacodec_ctx->sample_fmt);
+
+                fwrite(aframe->data[0], 1, size, src_pcm);
 
                 av_init_packet(&target_packet);
                 target_packet.size = 0;
