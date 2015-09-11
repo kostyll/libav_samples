@@ -1,0 +1,62 @@
+ 1950  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32be -aac audio.wav
+ 1951  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32be -aac mp4a audio.wav
+ 1952  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32be -mp4a audio.wav
+ 1953  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32be -aac 1 audio.wav
+ 1954  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32le -aac 1 audio.wav
+ 1955  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32le -aac 6 audio.wav
+ 1956  wavesurfer audio.wav 
+ 1957  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -acodec pcm_s32le -aac 6 audio.pcm
+ 1958  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -f s32le  -acodec pcm_s32le -aac 6 audio.pcm
+ 1959  ls -lh audio.*
+ 1960  ls -lh audio.* src.pcm 
+ 1961  make && ./test_video_convert big_buck_bunny_720p_2mb.mp4 out.avi && ls -lh out.avi src.pcm 
+ 1962  ls -lh audio.* src.pcm 
+ 1963  ls -l audio.* src.pcm 
+ 1964  diff audio.pcm src.pcm 
+ 1965  vimdiff audio.pcm src.pcm 
+ 1966  sudo apt-get install vimdiff
+ 1967  sudo apt-get install vim
+ 1968  vimdiff audio.pcm src.pcm 
+ 1969  hexdump -C  audio.pcm | less 
+ 1970  cat audio.pcm | hexdump -C   | less 
+ 1971  cat audio.pcm -b 16 | hexdump -C   | less 
+ 1972  cat audio.pcm -c 16 | hexdump -C   | less 
+ 1973  cat audio.pcm -n 16 | hexdump -C   | less 
+ 1974  man cat
+ 1975  cat audio.pcm -n 1 | hexdump -C   | less 
+ 1976  man cat
+ 1977  cat audio.pcm -b 1 | hexdump -C   | less 
+ 1978  cat audio.pcm -b 1 | hexdump -C  
+ 1979  man cat
+ 1980  man hexdump 
+ 1981  cat audio.pcm -b 1 | hexdump -n 16 -C  
+ 1982  cat src.pcm.pcm -b 1 | hexdump -n 16 -C  
+ 1983  cat src.pcm -b 1 | hexdump -n 16 -C  
+ 1984  cat src.pcm.pcm -b 1 | hexdump -n 16 -C  
+ 1985  cat src.pcm -b 1 | hexdump -n 16 -C  
+ 1986  cat audio.pcm -b 1 | hexdump -n 16 -C  
+ 1987  cat audio.pcm -b 1 | hexdump -n 32 -C  
+ 1988  cat src.pcm -b 1 | hexdump -n 32 -C  
+ 1989  cat src.pcm -b 1 | hexdump -n 64 -C  
+ 1990  cat audio.pcm -b 1 | hexdump -n 64 -C  
+ 1991  subl histogram.py
+ 1992  git status 
+ 1993  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -f s32le  -acodec pcm_s32be -aac 6 audio.pcm
+ 1994  ffmpeg -i big_buck_bunny_720p_2mb.mp4 -f s32be  -acodec pcm_s32be -aac 6 audio.pcm
+ 1995  cat audio.pcm -b 1 | hexdump -n 64 -C  
+ 1996  cat src.pcm -b 1 | hexdump -n 64 -C  
+ 1997  make && ./test_video_convert big_buck_bunny_720p_2mb.mp4 out.avi && ls -lh out.avi src.pcm 
+ 1998  cat src.pcm -b 1 | hexdump -n 64 -C  
+ 1999  cat audio.pcm -b 1 | hexdump -n 64 -C  
+ 2000  cat audio.pcm -b 1 | hexdump -n 128 -C  
+ 2001  cat src.pcm -b 1 | hexdump -n 128 -C  
+ 2002  cat audio.pcm -b 1 | hexdump -n 256 -C  
+ 2003  cat src.pcm -b 1 | hexdump -n 256 -C  
+ 2004  ipython
+ 2005  python histogram.py audio.pcm src.pcm 
+ 2006  git add histogram.py 
+ 2007  git status 
+ 2008  git diff
+ 2009  git commit -am "..."
+ 2010  git push origin master
+ 2011  history 
