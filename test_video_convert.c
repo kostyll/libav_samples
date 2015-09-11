@@ -337,8 +337,7 @@ int main(int argc, char ** argv) {
     oast.st = oastream;
     oast.st->id = ofmt_ctx->nb_streams-1;
 
-    oacodec_ctx->sample_fmt  = oacodec->sample_fmts ?
-    oacodec->sample_fmts[0] : AV_SAMPLE_FMT_FLTP;
+    oacodec_ctx->sample_fmt  = iacodec_ctx->sample_fmt;
     oacodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
     oacodec_ctx->bit_rate    = iacodec_ctx->bit_rate;
     oacodec_ctx->sample_rate = iacodec_ctx->sample_rate;
@@ -423,9 +422,11 @@ int main(int argc, char ** argv) {
    /* set options */
    av_opt_set_int       (swr_ctx, "in_channel_count",   iacodec_ctx->channels,       0);
    av_opt_set_int       (swr_ctx, "in_sample_rate",     iacodec_ctx->sample_rate,    0);
+   av_opt_set_int       (swr_ctx, "in_ch_layout",       iacodec_ctx->channel_layout, 0);
    av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",      iacodec_ctx->sample_fmt,     0);
    av_opt_set_int       (swr_ctx, "out_channel_count",  oacodec_ctx->channels,       0);
    av_opt_set_int       (swr_ctx, "out_sample_rate",    oacodec_ctx->sample_rate,    0);
+   av_opt_set_int       (swr_ctx, "out_ch_layout",      oacodec_ctx->channel_layout, 0);
    av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     oacodec_ctx->sample_fmt,     0);
 
    /* initialize the resampling context */
@@ -440,6 +441,9 @@ int main(int argc, char ** argv) {
     // oaudio_st->pts.val = .1;
     video_pts = 0.0;
     audio_pts = 0.0;
+
+    FILE * src_pcm = fopen("src.pcm", "wb");
+    FILE * scaled_pcm = fopen("scaled.pcm", "wb");
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
         // av_copy_packet(&packet_copy, &packet);
@@ -512,6 +516,8 @@ int main(int argc, char ** argv) {
 
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet);
 
+            fwrite(aframe->data, 1, aframe->linesize[0], src_pcm);
+
             if (frame_finished ) {
 
                 av_init_packet(&target_packet);
@@ -567,6 +573,7 @@ int main(int argc, char ** argv) {
         // Free the packet that was allocated by av_read_frame
         
     }
+    fclose(src_pcm);
 
     av_write_trailer(ofmt_ctx);
 
