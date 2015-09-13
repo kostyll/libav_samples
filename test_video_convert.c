@@ -344,7 +344,7 @@ int main(int argc, char ** argv) {
     oacodec_ctx->channels    = iacodec_ctx->channels;
     oacodec_ctx->channel_layout = iacodec_ctx->channel_layout;
     // oacodec_ctx->time_base = iacodec_ctx->time_base;
-    oacodec_ctx->time_base = (AVRational){ 1, oacodec_ctx->sample_rate } ;
+    // oacodec_ctx->time_base = (AVRational){ 1, oacodec_ctx->sample_rate } ;
     // oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
     // oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
 
@@ -442,6 +442,25 @@ int main(int argc, char ** argv) {
     video_pts = 0.0;
     audio_pts = 0.0;
 
+    int nb_samples;
+    if (oacodec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
+       nb_samples = 10000;
+    else
+       nb_samples = oacodec_ctx->frame_size;
+
+    daframe = alloc_audio_frame(
+        oacodec_ctx->sample_fmt,
+        oacodec_ctx->channel_layout,
+        oacodec_ctx->sample_rate,
+        nb_samples
+    );
+
+    daframe->nb_samples = oacodec_ctx->frame_size;
+    daframe->format = oacodec_ctx->sample_fmt;
+    daframe->channel_layout = oacodec_ctx->channel_layout;
+    daframe->channels = oacodec_ctx->channels;
+    daframe->sample_rate = oacodec_ctx->sample_rate;
+
     FILE * src_pcm = fopen("src.pcm", "wb");
     FILE * scaled_pcm = fopen("scaled.pcm", "wb");
 
@@ -513,8 +532,10 @@ int main(int argc, char ** argv) {
             int frame_finished;
             int frame_encoded;
             int dst_nb_samples;
+            av_copy_packet(&packet_copy, &packet);
 
-            avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet);
+
+            avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet_copy);
 
             if (frame_finished ) {
                 int size = av_samples_get_buffer_size (NULL,
@@ -523,23 +544,20 @@ int main(int argc, char ** argv) {
                                                    iacodec_ctx->sample_fmt,
                                                    1);
                 fprintf(stdout, "sample_fmt = %d\n", iacodec_ctx->sample_fmt);
+                fprintf(stdout, "sample_rate = %d\n", iacodec_ctx->sample_rate);
+                fprintf(stdout, "channels = %d\n", iacodec_ctx->channels);
+                fprintf(stdout, "sample_fmt = %d\n", iacodec_ctx->sample_fmt);
+                fprintf(stdout, "sample_rate = %d\n", oacodec_ctx->sample_rate);
+                fprintf(stdout, "channels = %d\n", oacodec_ctx->channels);
+                fprintf(stdout, "sample_fmt = %d\n", oacodec_ctx->sample_fmt);
+
 
                 fwrite(aframe->data[0], 1, size, src_pcm);
 
                 av_init_packet(&target_packet);
                 target_packet.size = 0;
                 target_packet.data = NULL;
-                int nb_samples;
-                if (oacodec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
-                   nb_samples = 10000;
-                else
-                   nb_samples = oacodec_ctx->frame_size;
-                daframe = alloc_audio_frame(
-                    oacodec_ctx->sample_fmt,
-                    oacodec_ctx->channel_layout,
-                    oacodec_ctx->sample_rate,
-                    nb_samples
-                );
+
                 swr_convert_frame(swr_ctx, aframe, daframe);
                 // fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
                 if (ret < 0) {
@@ -568,7 +586,11 @@ int main(int argc, char ** argv) {
                     fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
                     // av_interleaved_write_frame(ofmt_ctx, &target_packet);
                     av_write_frame(ofmt_ctx, &target_packet);
+                    
                     fprintf(stdout, "AUDIO WRITTEN\n");
+
+                    fwrite(target_packet.data, 1, target_packet.size, scaled_pcm);
+
                     av_free_packet(&packet);
                     av_free_packet(&target_packet);
                 }
@@ -580,6 +602,7 @@ int main(int argc, char ** argv) {
         
     }
     fclose(src_pcm);
+    fclose(scaled_pcm);
 
     av_write_trailer(ofmt_ctx);
 
