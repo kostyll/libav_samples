@@ -493,18 +493,18 @@ int main(int argc, char ** argv) {
 
                 avcodec_encode_video2(ovcodec_ctx, &target_packet, frame, &frame_encoded);
                 if (frame_encoded) {
-                    video_pts += ((double)ovcodec_ctx->time_base.num / (double)ovcodec_ctx-> time_base.den)*2 ;
+                    video_pts += ((double)ovcodec_ctx->time_base.num / (double)ovcodec_ctx-> time_base.den) ;
                     // fprintf(stdout, "ctx.tb = %d, st.tb = %d\n", ovcodec_ctx->time_base, ovideo_st->time_base);
                     // av_packet_rescale_ts(&target_packet, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
                     // target_packet.pts = (int64_t)video_pts;
                     // target_packet.pts = 0;
-                    // target_packet.dts = 0;
+                    // target_packet.dts = video_pts;
                     // fprintf(stdout, "video_rescaled_ts = %d\n", target_packet.dts);
                     target_packet.stream_index = out_video_stream;
                     // fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
-                    // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                    if (av_write_frame(ofmt_ctx, &target_packet) != 0)
-                            die("Error while writing audio frame");
+                    av_interleaved_write_frame(ofmt_ctx, &target_packet);
+                    // if (av_write_frame(ofmt_ctx, &target_packet) != 0)
+                    //         die("Error while writing audio frame");
                     // av_write_frame(ofmt_ctx, &target_packet);
                     // fprintf(stdout, "VIDEO  WRITTEN\n");
                     av_free_packet(&target_packet);
@@ -535,7 +535,7 @@ int main(int argc, char ** argv) {
                              NULL,
                              iacodec_ctx->channels,
                              daframe->nb_samples,
-                             iacodec_ctx->sample_fmt, 0) < 0)
+                             oacodec_ctx->sample_fmt, 0) < 0)
                     die("Could not allocate samples");
 
                 int outSamples = swr_convert(swr_ctx, NULL, 0,
@@ -547,22 +547,22 @@ int main(int argc, char ** argv) {
 
                 for (;;) {
                      outSamples = swr_get_out_samples(swr_ctx, 0);
-                     if (outSamples < iacodec_ctx->frame_size) break;
+                     if (outSamples < oacodec_ctx->frame_size) break;
 
                      outSamples = swr_convert(swr_ctx,
                                               &convertedData,
                                               daframe->nb_samples, NULL, 0);
 
                      size_t buffer_size = av_samples_get_buffer_size(NULL,
-                                    iacodec_ctx->channels,
+                                    oacodec_ctx->channels,
                                     daframe->nb_samples,
-                                    iacodec_ctx->sample_fmt,
+                                    oacodec_ctx->sample_fmt,
                                     0);
                     if (buffer_size < 0) die("Invalid buffer size");
 
                     if (avcodec_fill_audio_frame(daframe,
-                             iacodec_ctx->channels,
-                             iacodec_ctx->sample_fmt,
+                             oacodec_ctx->channels,
+                             oacodec_ctx->sample_fmt,
                              convertedData,
                              buffer_size,
                              0) < 0)
@@ -578,15 +578,15 @@ int main(int argc, char ** argv) {
 
                     if (frame_finished) {
                         outPacket.stream_index = oaudio_st->index;
-                        audio_pts += ((double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den))/2;
+                        audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
                         // outPacket.pts = (int64_t)audio_pts;
                         // outPacket.pts = 0;
                         // outPacket.dts = 0;
 
-                        // if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
-                        //     die("Error while writing audio frame");
-                        if (av_write_frame(ofmt_ctx, &outPacket) != 0)
+                        if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
                             die("Error while writing audio frame");
+                        // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
+                        //     die("Error while writing audio frame");
 
                         av_free_packet(&outPacket);
                     }
