@@ -32,6 +32,7 @@ AVFormatContext * open_input_source(char *source) {
     int err;
     
     // Open video file
+    result = avformat_alloc_context();
     err = avformat_open_input(&result, source, NULL, NULL);
     if (err < 0) {
         fprintf(stderr, "ffmpeg: Unable to open input source%s\n", source);
@@ -81,7 +82,7 @@ int get_audio_stream(AVFormatContext * fmt_ctx) {
 
 static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
                                   uint64_t channel_layout,
-                                  int sample_rate, int nb_samples)
+                                  int sample_rate, int nb_samples, int channels)
 {
     AVFrame *frame = av_frame_alloc();
     int ret;
@@ -91,6 +92,7 @@ static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
     }
     frame->format = sample_fmt;
     frame->channel_layout = channel_layout;
+    frame->channels = channels;
     frame->sample_rate = sample_rate;
     frame->nb_samples = nb_samples;
     if (nb_samples) {
@@ -133,9 +135,9 @@ void open_audio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictio
            nb_samples = c->frame_size;
    
        ost->frame     = alloc_audio_frame(c->sample_fmt, c->channel_layout,
-                                          c->sample_rate, nb_samples);
+                                          c->sample_rate, nb_samples, c->channels);
        ost->tmp_frame = alloc_audio_frame(AV_SAMPLE_FMT_S16, c->channel_layout,
-                                          c->sample_rate, nb_samples);
+                                          c->sample_rate, nb_samples, c->channels);
   
        /* create resampler context */
            ost->swr_ctx = swr_alloc();
@@ -408,7 +410,8 @@ int main(int argc, char ** argv) {
         iacodec_ctx->sample_fmt,
         iacodec_ctx->channel_layout,
         iacodec_ctx->sample_rate,
-        10000
+        10000,
+        iacodec_ctx->channels
     );
     struct SwsContext *sws_ctx;
     struct SwrContext *swr_ctx;
@@ -452,7 +455,8 @@ int main(int argc, char ** argv) {
         oacodec_ctx->sample_fmt,
         oacodec_ctx->channel_layout,
         oacodec_ctx->sample_rate,
-        nb_samples
+        nb_samples,
+        oacodec_ctx->channels
     );
 
     daframe->nb_samples = oacodec_ctx->frame_size;
@@ -465,29 +469,7 @@ int main(int argc, char ** argv) {
     FILE * scaled_pcm = fopen("scaled.pcm", "wb");
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
-        // av_copy_packet(&packet_copy, &packet);
 
-        // ret = av_interleaved_write_frame(ofmt_ctx, &packet_copy);
-        // if (ret < 0) {
-        //     fprintf(stderr, "Error muxing packet\n");
-        // };
-
-        // fprintf(stdout, "READ new PACKET\n");
-
-        // if (ovideo_st) {
-        //     video_pts = (double)ovideo_st->pts.val * ovideo_st->time_base.num / ovideo_st->time_base.den;
-        //     // fprintf(stdout, "SETTING video_pts to %f with ovideo_st->pts.val %f\n", video_pts, (double)ovideo_st->pts.val);
-        // } else
-        //     video_pts = 0.0;    
-
-        // if (oaudio_st) {
-        //     audio_pts = (double)oaudio_st->pts.val * oaudio_st->time_base.num / oaudio_st->time_base.den;
-        //     // fprintf(stdout, "SETTING audio_pts to %f with oaudio_st->pts.val %f\n", audio_pts, (double)oaudio_st->pts.val);
-        // }
-        // else {
-        //     // fprintf(stdout, "SETTING audio_pts to 0\n");
-        //     audio_pts = 0.0;
-        // }
         fprintf(stdout, "video_pts = %f, audio_pts = %f \n", video_pts, audio_pts);
 
         // fprintf(stdout, "packet.pts = %d, packet.dts = %d\n", packet.pts, packet.dts);
@@ -543,14 +525,6 @@ int main(int argc, char ** argv) {
                                                    aframe->nb_samples,
                                                    iacodec_ctx->sample_fmt,
                                                    1);
-                fprintf(stdout, "sample_fmt = %d\n", iacodec_ctx->sample_fmt);
-                fprintf(stdout, "sample_rate = %d\n", iacodec_ctx->sample_rate);
-                fprintf(stdout, "channels = %d\n", iacodec_ctx->channels);
-                fprintf(stdout, "sample_fmt = %d\n", iacodec_ctx->sample_fmt);
-                fprintf(stdout, "sample_rate = %d\n", oacodec_ctx->sample_rate);
-                fprintf(stdout, "channels = %d\n", oacodec_ctx->channels);
-                fprintf(stdout, "sample_fmt = %d\n", oacodec_ctx->sample_fmt);
-
 
                 fwrite(aframe->data[0], 1, size, src_pcm);
 
@@ -558,7 +532,7 @@ int main(int argc, char ** argv) {
                 target_packet.size = 0;
                 target_packet.data = NULL;
 
-                swr_convert_frame(swr_ctx, aframe, daframe);
+                ret = swr_convert_frame(swr_ctx, aframe, daframe);
                 // fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
                 if (ret < 0) {
                     fprintf(stderr, "Error while converting\n");
