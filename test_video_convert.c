@@ -353,14 +353,14 @@ int main(int argc, char ** argv) {
     oacodec_ctx->channel_layout = iacodec_ctx->channel_layout;
     // oacodec_ctx->time_base = iacodec_ctx->time_base;
     // oacodec_ctx->time_base = (AVRational){ 1, oacodec_ctx->sample_rate } ;
-    // oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
-    // oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
+    oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
+    oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
 
-    if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-        fprintf(stdout, "ASASASASASA\n");
-        ovstream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-        oastream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-    }
+    // if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+    //     fprintf(stdout, "ASASASASASA\n");
+    //     ovstream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    //     oastream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    // }
 
     err = avcodec_open2(ovcodec_ctx, ovcodec, NULL);
     if (err < 0) {
@@ -677,6 +677,19 @@ int main(int argc, char ** argv) {
         av_freep(&ofmt_ctx->streams[i]->codec);
         av_freep(&ofmt_ctx->streams[i]);
     }
+
+    swr_close(swr_ctx);
+    swr_free(&swr_ctx);
+    
+    // av_frame_free(&frame);
+    // av_frame_free(&aframe);
+    // av_frame_free(&daframe);
+
+    // av_free_packet(&packet);
+    // av_free_packet(&packet_copy);
+    // av_free_packet(&target_packet);
+    // av_write_trailer(ofmt_ctx);
+    // avio_close(ofmt_ctx->pb);
 
     printf("Finish!\n");
     return 0;
