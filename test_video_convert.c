@@ -26,6 +26,10 @@ typedef struct OutputStream {
     struct SwrContext *swr_ctx;
 } OutputStream;
 
+static void die(char *str) {
+    fprintf(stderr, "%s\n", str);
+    exit(1);
+}
 
 AVFormatContext * open_input_source(char *source) {
     AVFormatContext * result = NULL;
@@ -136,7 +140,7 @@ void open_audio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictio
    
        ost->frame     = alloc_audio_frame(c->sample_fmt, c->channel_layout,
                                           c->sample_rate, nb_samples, c->channels);
-       ost->tmp_frame = alloc_audio_frame(AV_SAMPLE_FMT_S16, c->channel_layout,
+       ost->tmp_frame = alloc_audio_frame(c->sample_fmt, c->channel_layout,
                                           c->sample_rate, nb_samples, c->channels);
   
        /* create resampler context */
@@ -149,7 +153,7 @@ void open_audio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictio
            /* set options */
            av_opt_set_int       (ost->swr_ctx, "in_channel_count",   c->channels,       0);
            av_opt_set_int       (ost->swr_ctx, "in_sample_rate",     c->sample_rate,    0);
-           av_opt_set_sample_fmt(ost->swr_ctx, "in_sample_fmt",      AV_SAMPLE_FMT_S16, 0);
+           av_opt_set_sample_fmt(ost->swr_ctx, "in_sample_fmt",      c->sample_fmt,     0);
            av_opt_set_int       (ost->swr_ctx, "out_channel_count",  c->channels,       0);
            av_opt_set_int       (ost->swr_ctx, "out_sample_rate",    c->sample_rate,    0);
            av_opt_set_sample_fmt(ost->swr_ctx, "out_sample_fmt",     c->sample_fmt,     0);
@@ -520,54 +524,114 @@ int main(int argc, char ** argv) {
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet_copy);
 
             if (frame_finished ) {
-                int size = av_samples_get_buffer_size (NULL,
-                                                   iacodec_ctx->channels,
-                                                   aframe->nb_samples,
-                                                   iacodec_ctx->sample_fmt,
-                                                   1);
 
-                fwrite(aframe->data[0], 1, size, src_pcm);
+                // Convert
 
-                av_init_packet(&target_packet);
-                target_packet.size = 0;
-                target_packet.data = NULL;
+                uint8_t *convertedData=NULL;
 
-                ret = swr_convert_frame(swr_ctx, aframe, daframe);
-                // fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
-                if (ret < 0) {
-                    fprintf(stderr, "Error while converting\n");
-                    exit(1);
+                if (av_samples_alloc(&convertedData,
+                             NULL,
+                             iacodec_ctx->channels,
+                             daframe->nb_samples,
+                             iacodec_ctx->sample_fmt, 0) < 0)
+                    die("Could not allocate samples");
+
+                int outSamples = swr_convert(swr_ctx, NULL, 0,
+                             //&convertedData,
+                             //audioFrameConverted->nb_samples,
+                             (const uint8_t **)aframe->data,
+                             aframe->nb_samples);
+                if (outSamples < 0) die("Could not convert");
+
+                for (;;) {
+                     outSamples = swr_get_out_samples(swr_ctx, 0);
+                     if (outSamples < iacodec_ctx->frame_size) break;
+
+                     outSamples = swr_convert(swr_ctx,
+                                              &convertedData,
+                                              daframe->nb_samples, NULL, 0);
+
+                     size_t buffer_size = av_samples_get_buffer_size(NULL,
+                                    iacodec_ctx->channels,
+                                    daframe->nb_samples,
+                                    iacodec_ctx->sample_fmt,
+                                    0);
+                    if (buffer_size < 0) die("Invalid buffer size");
+
+                    if (avcodec_fill_audio_frame(daframe,
+                             iacodec_ctx->channels,
+                             iacodec_ctx->sample_fmt,
+                             convertedData,
+                             buffer_size,
+                             0) < 0)
+                        die("Could not fill frame");
+
+                    AVPacket outPacket;
+                    av_init_packet(&outPacket);
+                    outPacket.data = NULL;
+                    outPacket.size = 0;
+
+                    if (avcodec_encode_audio2(oacodec_ctx, &outPacket, daframe, &frame_finished) < 0)
+                        die("Error encoding audio frame");
+
+                    if (frame_finished) {
+                        outPacket.stream_index = oaudio_st->index;
+
+                        if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
+                            die("Error while writing audio frame");
+
+                        av_free_packet(&outPacket);
+                    }
                 }
-                if (!check_sample_fmt(oacodec, oacodec_ctx->sample_fmt)) {
-                    fprintf(stderr, "Encoder does not support sample format %s",
-                            av_get_sample_fmt_name(oacodec_ctx->sample_fmt));
-                    exit(1);
-                }
-                // fprintf(stdout, "AUDIO Encoding...\n");
-                ret = avcodec_encode_audio2(oacodec_ctx, &target_packet, daframe, &frame_encoded);
 
-                fprintf(stdout, "Done with %d pkt_size = %d!, ret = %d\n", frame_encoded, target_packet.size, ret);
-                if (frame_encoded) {
+                // int size = av_samples_get_buffer_size (NULL,
+                //                                    iacodec_ctx->channels,
+                //                                    aframe->nb_samples,
+                //                                    iacodec_ctx->sample_fmt,
+                //                                    1);
 
-                    audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
+                // fwrite(aframe->data[0], 1, size, src_pcm);
 
-                    fprintf(stdout, "A ctx.tb = %d, st.tb = %d\n", oacodec_ctx->time_base, oaudio_st->time_base);
-                    // av_packet_rescale_ts(&target_packet, oacodec_ctx->time_base, oaudio_st->time_base);
-                    target_packet.pts = audio_pts;
-                    target_packet.dts = 0;
-                    fprintf(stdout, "audio_rescaled_ts = %d\n", target_packet.dts);                    
-                    target_packet.stream_index = out_audio_stream;
-                    fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
-                    // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                    av_write_frame(ofmt_ctx, &target_packet);
+                // av_init_packet(&target_packet);
+                // target_packet.size = 0;
+                // target_packet.data = NULL;
+
+                // ret = swr_convert_frame(swr_ctx, aframe, daframe);
+                // // fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
+                // if (ret < 0) {
+                //     fprintf(stderr, "Error while converting\n");
+                //     exit(1);
+                // }
+                // if (!check_sample_fmt(oacodec, oacodec_ctx->sample_fmt)) {
+                //     fprintf(stderr, "Encoder does not support sample format %s",
+                //             av_get_sample_fmt_name(oacodec_ctx->sample_fmt));
+                //     exit(1);
+                // }
+                // // fprintf(stdout, "AUDIO Encoding...\n");
+                // ret = avcodec_encode_audio2(oacodec_ctx, &target_packet, daframe, &frame_encoded);
+
+                // fprintf(stdout, "Done with %d pkt_size = %d!, ret = %d\n", frame_encoded, target_packet.size, ret);
+                // if (frame_encoded) {
+
+                //     audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
+
+                //     fprintf(stdout, "A ctx.tb = %d, st.tb = %d\n", oacodec_ctx->time_base, oaudio_st->time_base);
+                //     // av_packet_rescale_ts(&target_packet, oacodec_ctx->time_base, oaudio_st->time_base);
+                //     target_packet.pts = audio_pts;
+                //     target_packet.dts = 0;
+                //     fprintf(stdout, "audio_rescaled_ts = %d\n", target_packet.dts);                    
+                //     target_packet.stream_index = out_audio_stream;
+                //     fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
+                //     // av_interleaved_write_frame(ofmt_ctx, &target_packet);
+                //     av_write_frame(ofmt_ctx, &target_packet);
                     
-                    fprintf(stdout, "AUDIO WRITTEN\n");
+                //     fprintf(stdout, "AUDIO WRITTEN\n");
 
-                    fwrite(target_packet.data, 1, target_packet.size, scaled_pcm);
+                //     fwrite(target_packet.data, 1, target_packet.size, scaled_pcm);
 
-                    av_free_packet(&packet);
-                    av_free_packet(&target_packet);
-                }
+                //     av_free_packet(&packet);
+                //     av_free_packet(&target_packet);
+                // }
 
             }
         }
