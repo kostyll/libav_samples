@@ -312,7 +312,7 @@ int main(int argc, char ** argv) {
     oacodec = avcodec_find_encoder(acodec_id);
 
     ovstream = avformat_new_stream(ofmt_ctx, ovcodec);
-    ovstream->duration = video_st->duration;
+    ovstream->duration = video_st->duration; 
     ovcodec_ctx = ovstream->codec;
     ovcodec_ctx->codec_id = vcodec_id;
     ovcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -475,7 +475,7 @@ int main(int argc, char ** argv) {
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
 
-        fprintf(stdout, "video_pts = %f, audio_pts = %f \n", video_pts, audio_pts);
+        // fprintf(stdout, "video_pts = %f, audio_pts = %f \n", video_pts, audio_pts);
 
         // fprintf(stdout, "packet.pts = %d, packet.dts = %d\n", packet.pts, packet.dts);
 
@@ -503,6 +503,10 @@ int main(int argc, char ** argv) {
                     // target_packet.dts = video_pts;
                     // fprintf(stdout, "video_rescaled_ts = %d\n", target_packet.dts);
                     target_packet.stream_index = out_video_stream;
+                    target_packet.pts = av_rescale_q_rnd(target_packet.pts, ivcodec_ctx->time_base, ovcodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+                    target_packet.dts = av_rescale_q_rnd(target_packet.dts, ivcodec_ctx->time_base, ovcodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+                    target_packet.duration = av_rescale_q(target_packet.duration, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
+                    target_packet.pos = -1;
                     // fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
                     av_interleaved_write_frame(ofmt_ctx, &target_packet);
                     // if (av_write_frame(ofmt_ctx, &target_packet) != 0)
@@ -584,6 +588,10 @@ int main(int argc, char ** argv) {
                         // outPacket.pts = (int64_t)audio_pts;
                         // outPacket.pts = 0;
                         // outPacket.dts = 0;
+                        outPacket.pts = av_rescale_q_rnd(outPacket.pts, iacodec_ctx->time_base, oacodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+                        outPacket.dts = av_rescale_q_rnd(outPacket.dts, iacodec_ctx->time_base, oacodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+                        outPacket.duration = av_rescale_q(outPacket.duration, iacodec_ctx->time_base, oacodec_ctx->time_base);
+                        outPacket.pos = -1;
 
                         if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
                             die("Error while writing audio frame");
