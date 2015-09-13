@@ -312,8 +312,10 @@ int main(int argc, char ** argv) {
     oacodec = avcodec_find_encoder(acodec_id);
 
     ovstream = avformat_new_stream(ofmt_ctx, ovcodec);
+    ovstream->duration = video_st->duration;
     ovcodec_ctx = ovstream->codec;
     ovcodec_ctx->codec_id = vcodec_id;
+    ovcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
     ovcodec_ctx->bit_rate = ivcodec_ctx->bit_rate;
     /* Resolution must be a multiple of two. */
     ovcodec_ctx->width    = ivcodec_ctx->width;
