@@ -366,7 +366,9 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
-    err = avcodec_open2(oacodec_ctx, oacodec, NULL);
+    AVDictionary* opts = NULL;
+    av_dict_set(&opts, "strict", "experimental", 2);
+    err = avcodec_open2(oacodec_ctx, oacodec, &opts);
     if (err < 0) {
         fprintf(stderr, "ffmpeg: Unable to open audio codec\n");
         return -1;
@@ -394,7 +396,8 @@ int main(int argc, char ** argv) {
 
     fprintf(stdout, "VideoStream = %d, AudioStream = %d\n", out_video_stream, out_audio_stream);    
 
-    double audio_pts, video_pts;
+    float audio_pts = 0.0;
+    float video_pts = 0.0;
 
     if (!(ofmt->flags & AVFMT_NOFILE)) {
         ret = avio_open(&ofmt_ctx->pb, outfile, AVIO_FLAG_WRITE);
@@ -403,12 +406,6 @@ int main(int argc, char ** argv) {
             return (-1);
         }
     }    
-    fprintf(stdout, "Writing header...\n");
-    ret = avformat_write_header(ofmt_ctx, NULL);
-    if (ret < 0) {
-        fprintf(stderr, "Error occurred when opening output file\n");
-        return (-1);
-    };
     // fprintf(stdout, "Getting default audio frame\n");
     aframe = alloc_audio_frame(
         iacodec_ctx->sample_fmt,
@@ -444,11 +441,6 @@ int main(int argc, char ** argv) {
     fprintf(stdout, "AUDIO FRAME samples = %d \n", aframe->nb_samples);
     int counter = 0;
 
-    // ovideo_st->pts.val = .1;
-    // oaudio_st->pts.val = .1;
-    video_pts = 0.0;
-    audio_pts = 0.0;
-
     int nb_samples;
     if (oacodec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
        nb_samples = 10000;
@@ -472,6 +464,13 @@ int main(int argc, char ** argv) {
     FILE * src_pcm = fopen("src.pcm", "wb");
     FILE * scaled_pcm = fopen("scaled.pcm", "wb");
 
+    fprintf(stdout, "Writing header...\n");
+    ret = avformat_write_header(ofmt_ctx, NULL);
+    if (ret < 0) {
+        fprintf(stderr, "Error occurred when opening output file\n");
+        return (-1);
+    };
+
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
 
         fprintf(stdout, "video_pts = %f, audio_pts = %f \n", video_pts, audio_pts);
@@ -489,22 +488,25 @@ int main(int argc, char ** argv) {
 
             if (frame_finished){
                 av_init_packet(&target_packet);
+                target_packet.size = 0;
+                target_packet.data = NULL;
 
                 avcodec_encode_video2(ovcodec_ctx, &target_packet, frame, &frame_encoded);
                 if (frame_encoded) {
-
-                    video_pts += (double)ovcodec_ctx->time_base.num / (double)ovcodec_ctx-> time_base.den;
-
-                    fprintf(stdout, "ctx.tb = %d, st.tb = %d\n", ovcodec_ctx->time_base, ovideo_st->time_base);
-                    // av_packet_rescale_ts(&target_packet, ovcodec_ctx->time_base, ovideo_st->time_base);
-                    target_packet.pts = video_pts;
-                    target_packet.dts = 0;
-                    fprintf(stdout, "video_rescaled_ts = %d\n", target_packet.dts);
+                    video_pts += ((double)ovcodec_ctx->time_base.num / (double)ovcodec_ctx-> time_base.den)*2 ;
+                    // fprintf(stdout, "ctx.tb = %d, st.tb = %d\n", ovcodec_ctx->time_base, ovideo_st->time_base);
+                    // av_packet_rescale_ts(&target_packet, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
+                    // target_packet.pts = (int64_t)video_pts;
+                    // target_packet.pts = 0;
+                    // target_packet.dts = 0;
+                    // fprintf(stdout, "video_rescaled_ts = %d\n", target_packet.dts);
                     target_packet.stream_index = out_video_stream;
-                    fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
+                    // fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
                     // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                    av_write_frame(ofmt_ctx, &target_packet);
-                    fprintf(stdout, "VIDEO  WRITTEN\n");
+                    if (av_write_frame(ofmt_ctx, &target_packet) != 0)
+                            die("Error while writing audio frame");
+                    // av_write_frame(ofmt_ctx, &target_packet);
+                    // fprintf(stdout, "VIDEO  WRITTEN\n");
                     av_free_packet(&target_packet);
                     // }
                     av_free_packet(&packet);
@@ -576,8 +578,14 @@ int main(int argc, char ** argv) {
 
                     if (frame_finished) {
                         outPacket.stream_index = oaudio_st->index;
+                        audio_pts += ((double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den))/2;
+                        // outPacket.pts = (int64_t)audio_pts;
+                        // outPacket.pts = 0;
+                        // outPacket.dts = 0;
 
-                        if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
+                        // if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
+                        //     die("Error while writing audio frame");
+                        if (av_write_frame(ofmt_ctx, &outPacket) != 0)
                             die("Error while writing audio frame");
 
                         av_free_packet(&outPacket);
