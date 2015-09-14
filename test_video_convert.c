@@ -273,25 +273,6 @@ int main(int argc, char ** argv) {
     };
     ofmt = ofmt_ctx->oformat;
 
-    // for (i = 0; i < ifmt_ctx->nb_streams; i++) {
-    //     AVStream *in_stream = ifmt_ctx->streams[i];
-    //     AVStream *out_stream = avformat_new_stream(ofmt_ctx, in_stream->codec->codec);
-    //     if (!out_stream) {
-    //         fprintf(stderr, "Failed allocating output stream\n");
-    //         ret = AVERROR_UNKNOWN;
-    //         return (-1);
-    //     }
-    //     ret = avcodec_copy_context(out_stream->codec, in_stream->codec);
-    //     if (ret < 0) {
-    //         fprintf(stderr, "Failed to copy context from input to output stream codec context\n");
-    //         return (-1);
-    //     }
-    //     out_stream->codec->codec_tag = 0;
-    //     if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)
-    //         out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-    // }
-    // av_dump_format(ofmt_ctx, 0, outfile, 1);
-
     int vcodec_id, acodec_id;
 
     vcodec_id = av_guess_codec(ofmt, NULL, outfile, NULL, AVMEDIA_TYPE_VIDEO);
