@@ -494,6 +494,8 @@ int main(int argc, char ** argv) {
                     // target_packet.pts = frame->pts;
                     target_packet.pts = av_rescale_q(target_packet.pts, ovcodec_ctx->time_base, ovideo_st->time_base);
                     // target_packet.dts = 0;
+
+                    fprintf(stdout, "packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
                     // target_packet.dts = av_rescale_q_rnd(target_packet.dts, ivcodec_ctx->time_base, ovcodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
                     // target_packet.duration = av_rescale_q(target_packet.duration, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
                     // target_packet.pos = -1;
@@ -588,6 +590,7 @@ int main(int argc, char ** argv) {
                         // outPacket.pts = daframe->pts;
                         outPacket.pts = av_rescale_q(outPacket.pts, oacodec_ctx->time_base, oaudio_st->time_base);
                         outPacket.dts = 0;
+                        fprintf(stdout, "outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
                         // outPacket.dts = av_rescale_q_rnd(outPacket.dts, iacodec_ctx->time_base, oacodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
                         // outPacket.duration = av_rescale_q(outPacket.duration, iacodec_ctx->time_base, oacodec_ctx->time_base);
                         // outPacket.pos = -1;
