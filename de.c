@@ -594,7 +594,7 @@ int read_packet_loop() {
 							opkt.destruct = av_destruct_packet;
 					} else {
 						opkt.data = packet.data;
-						opkt.size = packet.size;n
+						opkt.size = packet.size;
 					}
 
 					if (av_interleaved_write_frame(pFormatCtxOut, &opkt) < 0) {

@@ -135,8 +135,7 @@ add_custom_target(
 
 add_custom_target(
     runcr
-    http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8 
-    test.avi 
+    ./test_video_convert http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8 test.avi 
 )
 
 
