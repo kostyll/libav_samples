@@ -531,7 +531,7 @@ int main(int argc, char ** argv) {
 
                 // Convert
 
-                uint8_t *convertedData=NULL;
+                uint8_t **convertedData=NULL;
 
                 if (av_samples_alloc(&convertedData,
                              NULL,
@@ -599,9 +599,12 @@ int main(int argc, char ** argv) {
                         // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
                         //     die("Error while writing audio frame");
 
+                        av_free_packet(&packet_copy);
                         av_free_packet(&outPacket);
                     }
                 }
+                if (convertedData) av_free(&convertedData[0]);
+                // av_freep(&convertedData);
 
                 // int size = av_samples_get_buffer_size (NULL,
                 //                                    iacodec_ctx->channels,
