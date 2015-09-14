@@ -1,0 +1,622 @@
+andrew@andrew-P5L-MX:/media/work/libav_samples$ ./test_video_convert http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8 test.avi
+Using network protocols without global network initialization. Please use avformat_network_init(), this will become mandatory later.
+Using network protocols without global network initialization. Please use avformat_network_init(), this will become mandatory later.
+[http @ 0x8882620] request: GET /streaming/5kanal/16/tvrec/playlist.m3u8 HTTP/1.1
+User-Agent: Lavf/56.36.100
+Accept: */*
+Range: bytes=0-
+Connection: close
+Host: ger1.peers.tv
+Icy-MetaData: 1
+
+
+[hls,applehttp @ 0x8882020] Format hls,applehttp probed with size=2048 and score=100
+[hls,applehttp @ 0x8882020] HLS request for url 'http://ger1.peers.tv/streaming/5kanal/16/tvrec/segment-1442234821-2756976.ts', offset 0, playlist 0
+Using network protocols without global network initialization. Please use avformat_network_init(), this will become mandatory later.
+Using network protocols without global network initialization. Please use avformat_network_init(), this will become mandatory later.
+[http @ 0x88887a0] request: GET /streaming/5kanal/16/tvrec/segment-1442234821-2756976.ts HTTP/1.1
+User-Agent: Lavf/56.36.100
+Accept: */*
+Connection: close
+Host: ger1.peers.tv
+Icy-MetaData: 1
+
+
+Format mpegts probed with size=2048 and score=100
+[mpegts @ 0x88879a0] stream=0 stream_type=1b pid=100 prog_reg_desc=
+[mpegts @ 0x88879a0] stream=1 stream_type=f pid=101 prog_reg_desc=
+[mpegts @ 0x88879a0] Before avformat_find_stream_info() pos: 0 bytes read:8957 seeks:0
+[h264 @ 0x88953a0] Current profile doesn't provide more RBSP data in PPS, skipping
+[mpegts @ 0x88879a0] All info found
+[mpegts @ 0x88879a0] After avformat_find_stream_info() pos: 157356 bytes read:158101 seeks:0 frames:57
+[hls,applehttp @ 0x8882020] Before avformat_find_stream_info() pos: 486 bytes read:486 seeks:0
+[hls,applehttp @ 0x8882020] All info found
+[hls,applehttp @ 0x8882020] After avformat_find_stream_info() pos: 486 bytes read:486 seeks:0 frames:57
+Input #0, hls,applehttp, from 'http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8':
+  Duration: N/A, start: 6832.000000, bitrate: N/A
+  Program 0 
+    Metadata:
+      variant_bitrate : 0
+    Stream #0:0, 21, 1/90000: Video: h264 (Constrained Baseline), 2 reference frames ([27][0][0][0] / 0x001B), yuv420p(left), 720x576 [SAR 16:15 DAR 4:3], 1/50, 25 fps, 25 tbr, 90k tbn, 50 tbc
+    Stream #0:1, 36, 1/90000: Audio: aac (LC) ([15][0][0][0] / 0x000F), 44100 Hz, stereo, fltp, 82 kb/s
+VideoStream = 0, AudioStream = 1
+detected 2 logical cores
+VideoCodecID = 13, AudioCodecID = 86019
+[mpeg4 @ 0x898a9c0] intra_quant_bias = 0 inter_quant_bias = -64
+ovstream_ctx = 0x898a9c0
+oastream_ctx = 0x88c29e0
+oaudio_st.timebase = 1
+Output #0, avi, to 'test.avi':
+    Stream #0:0, 0, 1/50: Video: mpeg4, 1 reference frame, yuv420p, 720x576, 1/50, q=2-31, 50 tbn, 50 tbc
+    Stream #0:1, 0, 1/44100: Audio: ac3, 44100 Hz, stereo, fltp, 80 kb/s
+VideoStream = 0, AudioStream = 1
+AUDIO FRAME samples = 10000 
+Writing header...
+packet.pts = 614881380, packet.dts = 0, packet_stream = 614881380
+ap decoded.frame.pts = 0
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 0
+packet.pts = 614883469, packet.dts = 0, packet_stream = 614883469
+ap decoded.frame.pts = 0
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 0
+outPacket.pts = 196154, outPacket.dts = 0 
+packet.pts = 614880000, packet.dts = 0, packet_stream = 614880000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341600
+packet.pts = 614885559, packet.dts = 0, packet_stream = 614885559
+ap decoded.frame.pts = 341600
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341600
+outPacket.pts = 196155, outPacket.dts = 0 
+packet.pts = 614883600, packet.dts = 0, packet_stream = 614883600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341602
+packet.pts = 614887649, packet.dts = 0, packet_stream = 614887649
+ap decoded.frame.pts = 341602
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341602
+packet.pts = 614889739, packet.dts = 0, packet_stream = 614889739
+ap decoded.frame.pts = 341602
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341602
+outPacket.pts = 196156, outPacket.dts = 0 
+packet.pts = 614887200, packet.dts = 0, packet_stream = 614887200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341604
+packet.pts = 341604, packet.dts = 0 
+packet.pts = 614891829, packet.dts = 0, packet_stream = 614891829
+ap decoded.frame.pts = 341604
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341604
+outPacket.pts = 196157, outPacket.dts = 0 
+packet.pts = 614893918, packet.dts = 0, packet_stream = 614893918
+ap decoded.frame.pts = 341604
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341604
+packet.pts = 614890800, packet.dts = 0, packet_stream = 614890800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341606
+packet.pts = 341606, packet.dts = 0 
+packet.pts = 614896008, packet.dts = 0, packet_stream = 614896008
+ap decoded.frame.pts = 341606
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341606
+outPacket.pts = 196158, outPacket.dts = 0 
+packet.pts = 614894400, packet.dts = 0, packet_stream = 614894400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341608
+packet.pts = 341608, packet.dts = 0 
+packet.pts = 614898098, packet.dts = 0, packet_stream = 614898098
+ap decoded.frame.pts = 341608
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341608
+outPacket.pts = 196159, outPacket.dts = 0 
+packet.pts = 614900188, packet.dts = 0, packet_stream = 614900188
+ap decoded.frame.pts = 341608
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341608
+packet.pts = 614898000, packet.dts = 0, packet_stream = 614898000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341610
+packet.pts = 341610, packet.dts = 0 
+packet.pts = 614902251, packet.dts = 0, packet_stream = 614902251
+ap decoded.frame.pts = 341610
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341610
+outPacket.pts = 196160, outPacket.dts = 0 
+packet.pts = 614904341, packet.dts = 0, packet_stream = 614904341
+ap decoded.frame.pts = 341610
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341610
+outPacket.pts = 196161, outPacket.dts = 0 
+packet.pts = 614901600, packet.dts = 0, packet_stream = 614901600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341612
+packet.pts = 341612, packet.dts = 0 
+packet.pts = 614906431, packet.dts = 0, packet_stream = 614906431
+ap decoded.frame.pts = 341612
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341612
+packet.pts = 614908520, packet.dts = 0, packet_stream = 614908520
+ap decoded.frame.pts = 341612
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341612
+outPacket.pts = 196162, outPacket.dts = 0 
+packet.pts = 614905200, packet.dts = 0, packet_stream = 614905200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341614
+packet.pts = 341614, packet.dts = 0 
+packet.pts = 614910610, packet.dts = 0, packet_stream = 614910610
+ap decoded.frame.pts = 341614
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341614
+outPacket.pts = 196163, outPacket.dts = 0 
+packet.pts = 614908800, packet.dts = 0, packet_stream = 614908800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341616
+packet.pts = 341616, packet.dts = 0 
+packet.pts = 614912700, packet.dts = 0, packet_stream = 614912700
+ap decoded.frame.pts = 341616
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341616
+packet.pts = 614914790, packet.dts = 0, packet_stream = 614914790
+ap decoded.frame.pts = 341616
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341616
+outPacket.pts = 196164, outPacket.dts = 0 
+packet.pts = 614912400, packet.dts = 0, packet_stream = 614912400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341618
+packet.pts = 341618, packet.dts = 0 
+packet.pts = 614916880, packet.dts = 0, packet_stream = 614916880
+ap decoded.frame.pts = 341618
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341618
+outPacket.pts = 196165, outPacket.dts = 0 
+packet.pts = 614918969, packet.dts = 0, packet_stream = 614918969
+ap decoded.frame.pts = 341618
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341618
+packet.pts = 614916000, packet.dts = 0, packet_stream = 614916000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341620
+packet.pts = 341620, packet.dts = 0 
+packet.pts = 614921088, packet.dts = 0, packet_stream = 614921088
+ap decoded.frame.pts = 341620
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341620
+outPacket.pts = 196166, outPacket.dts = 0 
+packet.pts = 614923178, packet.dts = 0, packet_stream = 614923178
+ap decoded.frame.pts = 341620
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341620
+outPacket.pts = 196167, outPacket.dts = 0 
+packet.pts = 614919600, packet.dts = 0, packet_stream = 614919600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341622
+packet.pts = 341622, packet.dts = 0 
+packet.pts = 614925267, packet.dts = 0, packet_stream = 614925267
+ap decoded.frame.pts = 341622
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341622
+packet.pts = 614923200, packet.dts = 0, packet_stream = 614923200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341624
+packet.pts = 341624, packet.dts = 0 
+packet.pts = 614927357, packet.dts = 0, packet_stream = 614927357
+ap decoded.frame.pts = 341624
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341624
+outPacket.pts = 196168, outPacket.dts = 0 
+packet.pts = 614929447, packet.dts = 0, packet_stream = 614929447
+ap decoded.frame.pts = 341624
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341624
+outPacket.pts = 196169, outPacket.dts = 0 
+packet.pts = 614926800, packet.dts = 0, packet_stream = 614926800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341626
+packet.pts = 341626, packet.dts = 0 
+packet.pts = 614931537, packet.dts = 0, packet_stream = 614931537
+ap decoded.frame.pts = 341626
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341626
+packet.pts = 614933627, packet.dts = 0, packet_stream = 614933627
+ap decoded.frame.pts = 341626
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341626
+outPacket.pts = 196170, outPacket.dts = 0 
+packet.pts = 614930400, packet.dts = 0, packet_stream = 614930400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341628
+packet.pts = 341628, packet.dts = 0 
+packet.pts = 614935716, packet.dts = 0, packet_stream = 614935716
+ap decoded.frame.pts = 341628
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341628
+outPacket.pts = 196171, outPacket.dts = 0 
+packet.pts = 614934000, packet.dts = 0, packet_stream = 614934000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341630
+packet.pts = 341630, packet.dts = 0 
+packet.pts = 614937806, packet.dts = 0, packet_stream = 614937806
+ap decoded.frame.pts = 341630
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341630
+packet.pts = 614939896, packet.dts = 0, packet_stream = 614939896
+ap decoded.frame.pts = 341630
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341630
+outPacket.pts = 196172, outPacket.dts = 0 
+packet.pts = 614937600, packet.dts = 0, packet_stream = 614937600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341632
+packet.pts = 341632, packet.dts = 0 
+packet.pts = 614942004, packet.dts = 0, packet_stream = 614942004
+ap decoded.frame.pts = 341632
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341632
+outPacket.pts = 196173, outPacket.dts = 0 
+packet.pts = 614944094, packet.dts = 0, packet_stream = 614944094
+ap decoded.frame.pts = 341632
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341632
+packet.pts = 614941200, packet.dts = 0, packet_stream = 614941200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341634
+packet.pts = 341634, packet.dts = 0 
+packet.pts = 614946184, packet.dts = 0, packet_stream = 614946184
+ap decoded.frame.pts = 341634
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341634
+outPacket.pts = 196174, outPacket.dts = 0 
+packet.pts = 614948273, packet.dts = 0, packet_stream = 614948273
+ap decoded.frame.pts = 341634
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341634
+outPacket.pts = 196175, outPacket.dts = 0 
+packet.pts = 614944800, packet.dts = 0, packet_stream = 614944800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341636
+packet.pts = 341636, packet.dts = 0 
+packet.pts = 614950363, packet.dts = 0, packet_stream = 614950363
+ap decoded.frame.pts = 341636
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341636
+packet.pts = 614948400, packet.dts = 0, packet_stream = 614948400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341638
+packet.pts = 341638, packet.dts = 0 
+packet.pts = 614952453, packet.dts = 0, packet_stream = 614952453
+ap decoded.frame.pts = 341638
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341638
+outPacket.pts = 196176, outPacket.dts = 0 
+packet.pts = 614954543, packet.dts = 0, packet_stream = 614954543
+ap decoded.frame.pts = 341638
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341638
+outPacket.pts = 196177, outPacket.dts = 0 
+packet.pts = 614952000, packet.dts = 0, packet_stream = 614952000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341640
+packet.pts = 341640, packet.dts = 0 
+packet.pts = 614956633, packet.dts = 0, packet_stream = 614956633
+ap decoded.frame.pts = 341640
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341640
+packet.pts = 614958722, packet.dts = 0, packet_stream = 614958722
+ap decoded.frame.pts = 341640
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341640
+outPacket.pts = 196178, outPacket.dts = 0 
+packet.pts = 614955600, packet.dts = 0, packet_stream = 614955600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341642
+packet.pts = 341642, packet.dts = 0 
+packet.pts = 614960812, packet.dts = 0, packet_stream = 614960812
+ap decoded.frame.pts = 341642
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341642
+outPacket.pts = 196179, outPacket.dts = 0 
+packet.pts = 614959200, packet.dts = 0, packet_stream = 614959200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341644
+packet.pts = 341644, packet.dts = 0 
+packet.pts = 614962902, packet.dts = 0, packet_stream = 614962902
+ap decoded.frame.pts = 341644
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341644
+packet.pts = 614964992, packet.dts = 0, packet_stream = 614964992
+ap decoded.frame.pts = 341644
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341644
+outPacket.pts = 196180, outPacket.dts = 0 
+packet.pts = 614962800, packet.dts = 0, packet_stream = 614962800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341646
+packet.pts = 341646, packet.dts = 0 
+packet.pts = 614967096, packet.dts = 0, packet_stream = 614967096
+ap decoded.frame.pts = 341646
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341646
+outPacket.pts = 196181, outPacket.dts = 0 
+packet.pts = 614969186, packet.dts = 0, packet_stream = 614969186
+ap decoded.frame.pts = 341646
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341646
+packet.pts = 614966400, packet.dts = 0, packet_stream = 614966400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341648
+packet.pts = 341648, packet.dts = 0 
+packet.pts = 614971276, packet.dts = 0, packet_stream = 614971276
+ap decoded.frame.pts = 341648
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341648
+outPacket.pts = 196182, outPacket.dts = 0 
+packet.pts = 614973365, packet.dts = 0, packet_stream = 614973365
+ap decoded.frame.pts = 341648
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341648
+outPacket.pts = 196183, outPacket.dts = 0 
+packet.pts = 614970000, packet.dts = 0, packet_stream = 614970000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341650
+packet.pts = 341650, packet.dts = 0 
+packet.pts = 614975455, packet.dts = 0, packet_stream = 614975455
+ap decoded.frame.pts = 341650
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341650
+packet.pts = 614973600, packet.dts = 0, packet_stream = 614973600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341652
+packet.pts = 341652, packet.dts = 0 
+packet.pts = 614977545, packet.dts = 0, packet_stream = 614977545
+ap decoded.frame.pts = 341652
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341652
+outPacket.pts = 196184, outPacket.dts = 0 
+packet.pts = 614979635, packet.dts = 0, packet_stream = 614979635
+ap decoded.frame.pts = 341652
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341652
+outPacket.pts = 196185, outPacket.dts = 0 
+packet.pts = 614977200, packet.dts = 0, packet_stream = 614977200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341654
+packet.pts = 341654, packet.dts = 0 
+packet.pts = 614981724, packet.dts = 0, packet_stream = 614981724
+ap decoded.frame.pts = 341654
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341654
+packet.pts = 614983814, packet.dts = 0, packet_stream = 614983814
+ap decoded.frame.pts = 341654
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341654
+outPacket.pts = 196186, outPacket.dts = 0 
+packet.pts = 614980800, packet.dts = 0, packet_stream = 614980800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341656
+packet.pts = 341656, packet.dts = 0 
+packet.pts = 614985927, packet.dts = 0, packet_stream = 614985927
+ap decoded.frame.pts = 341656
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341656
+outPacket.pts = 196187, outPacket.dts = 0 
+packet.pts = 614984400, packet.dts = 0, packet_stream = 614984400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341658
+packet.pts = 341658, packet.dts = 0 
+packet.pts = 614988016, packet.dts = 0, packet_stream = 614988016
+ap decoded.frame.pts = 341658
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341658
+packet.pts = 614990106, packet.dts = 0, packet_stream = 614990106
+ap decoded.frame.pts = 341658
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341658
+outPacket.pts = 196188, outPacket.dts = 0 
+packet.pts = 614988000, packet.dts = 0, packet_stream = 614988000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341660
+packet.pts = 341660, packet.dts = 0 
+packet.pts = 614992196, packet.dts = 0, packet_stream = 614992196
+ap decoded.frame.pts = 341660
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341660
+outPacket.pts = 196189, outPacket.dts = 0 
+packet.pts = 614994286, packet.dts = 0, packet_stream = 614994286
+ap decoded.frame.pts = 341660
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341660
+packet.pts = 614991600, packet.dts = 0, packet_stream = 614991600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341662
+packet.pts = 341662, packet.dts = 0 
+packet.pts = 614996376, packet.dts = 0, packet_stream = 614996376
+ap decoded.frame.pts = 341662
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341662
+outPacket.pts = 196190, outPacket.dts = 0 
+packet.pts = 614998465, packet.dts = 0, packet_stream = 614998465
+ap decoded.frame.pts = 341662
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341662
+outPacket.pts = 196191, outPacket.dts = 0 
+packet.pts = 614995200, packet.dts = 0, packet_stream = 614995200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341664
+packet.pts = 341664, packet.dts = 0 
+packet.pts = 615000555, packet.dts = 0, packet_stream = 615000555
+ap decoded.frame.pts = 341664
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341664
+packet.pts = 614998800, packet.dts = 0, packet_stream = 614998800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341666
+packet.pts = 341666, packet.dts = 0 
+packet.pts = 615002645, packet.dts = 0, packet_stream = 615002645
+ap decoded.frame.pts = 341666
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341666
+outPacket.pts = 196192, outPacket.dts = 0 
+packet.pts = 615004735, packet.dts = 0, packet_stream = 615004735
+ap decoded.frame.pts = 341666
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341666
+outPacket.pts = 196193, outPacket.dts = 0 
+packet.pts = 615002400, packet.dts = 0, packet_stream = 615002400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341668
+packet.pts = 341668, packet.dts = 0 
+packet.pts = 615006855, packet.dts = 0, packet_stream = 615006855
+ap decoded.frame.pts = 341668
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341668
+packet.pts = 615008945, packet.dts = 0, packet_stream = 615008945
+ap decoded.frame.pts = 341668
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341668
+outPacket.pts = 196194, outPacket.dts = 0 
+packet.pts = 615006000, packet.dts = 0, packet_stream = 615006000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341670
+packet.pts = 341670, packet.dts = 0 
+packet.pts = 615011035, packet.dts = 0, packet_stream = 615011035
+ap decoded.frame.pts = 341670
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341670
+outPacket.pts = 196195, outPacket.dts = 0 
+packet.pts = 615013124, packet.dts = 0, packet_stream = 615013124
+ap decoded.frame.pts = 341670
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341670
+packet.pts = 615009600, packet.dts = 0, packet_stream = 615009600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341672
+packet.pts = 341672, packet.dts = 0 
+packet.pts = 615015214, packet.dts = 0, packet_stream = 615015214
+ap decoded.frame.pts = 341672
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341672
+outPacket.pts = 196196, outPacket.dts = 0 
+packet.pts = 615013200, packet.dts = 0, packet_stream = 615013200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341674
+packet.pts = 341674, packet.dts = 0 
+packet.pts = 615017304, packet.dts = 0, packet_stream = 615017304
+ap decoded.frame.pts = 341674
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341674
+outPacket.pts = 196197, outPacket.dts = 0 
+packet.pts = 615019394, packet.dts = 0, packet_stream = 615019394
+ap decoded.frame.pts = 341674
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341674
+packet.pts = 615016800, packet.dts = 0, packet_stream = 615016800
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341676
+packet.pts = 341676, packet.dts = 0 
+packet.pts = 615021484, packet.dts = 0, packet_stream = 615021484
+ap decoded.frame.pts = 341676
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341676
+outPacket.pts = 196198, outPacket.dts = 0 
+packet.pts = 615023573, packet.dts = 0, packet_stream = 615023573
+ap decoded.frame.pts = 341676
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341676
+outPacket.pts = 196199, outPacket.dts = 0 
+packet.pts = 615020400, packet.dts = 0, packet_stream = 615020400
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341678
+packet.pts = 341678, packet.dts = 0 
+packet.pts = 615025663, packet.dts = 0, packet_stream = 615025663
+ap decoded.frame.pts = 341678
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341678
+packet.pts = 615024000, packet.dts = 0, packet_stream = 615024000
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341680
+packet.pts = 341680, packet.dts = 0 
+packet.pts = 615027753, packet.dts = 0, packet_stream = 615027753
+ap decoded.frame.pts = 341680
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341680
+outPacket.pts = 196200, outPacket.dts = 0 
+packet.pts = 615029843, packet.dts = 0, packet_stream = 615029843
+ap decoded.frame.pts = 341680
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341680
+outPacket.pts = 196201, outPacket.dts = 0 
+packet.pts = 615027600, packet.dts = 0, packet_stream = 615027600
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341682
+packet.pts = 341682, packet.dts = 0 
+packet.pts = 615031835, packet.dts = 0, packet_stream = 615031835
+ap decoded.frame.pts = 341682
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341682
+packet.pts = 615033924, packet.dts = 0, packet_stream = 615033924
+ap decoded.frame.pts = 341682
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341682
+outPacket.pts = 196202, outPacket.dts = 0 
+packet.pts = 615031200, packet.dts = 0, packet_stream = 615031200
+vp decoded.frame.pts = 0
+scaling vpts wiht video_st->tb = 1, ivc_ctx->tb = 90000
+vp decoded.frame.pts = 341684
+packet.pts = 341684, packet.dts = 0 
+packet.pts = 615036014, packet.dts = 0, packet_stream = 615036014
+ap decoded.frame.pts = 341684
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341684
+outPacket.pts = 196203, outPacket.dts = 0 
+packet.pts = 615038104, packet.dts = 0, packet_stream = 615038104
+ap decoded.frame.pts = 341684
+scaling apts wiht audio_st->tb = 1, iac_ctx->tb = 90000
+ap decoded.frame.pts = 341684
+^C
