@@ -110,3 +110,26 @@ foreach(source ${list_sources})
         ${dst_file} -lSDL -lm -ldl -lrt -lpthread -lz -lavfilter -lavformat -lswscale -lavcodec -lavutil 
     )
 endforeach(source list_sources)
+
+add_custom_target(
+    runcb
+    test_video_convert big_buck_bunny_720p_2mb.mp4 out.avi 
+)
+
+
+add_custom_target(
+    runvb
+    vlc out.avi
+)
+
+add_custom_target(
+    runcr
+    http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8 
+    test.avi 
+)
+
+
+add_custom_target(
+    runvr
+    vlc test.avi
+)
