@@ -22,6 +22,8 @@ set(SOURCE_OUTPUT_EXAMPLE "output-example.c")
 
 set(SOURCE_VIDEO_CONVERT "test_video_convert.c")
 
+set(SOURCE_DECODE_ENCODE "de.c")
+
 set(
     SOURCE_SOME_DECODE_CONVERT_ENCODE_AUDIO_SAMPLE
     "some_audio_decode_convert_encode_sample.c"
@@ -33,6 +35,11 @@ add_executable(
     some_audio_decode_convert_encode_sample
     ${SOURCE_SOME_DECODE_CONVERT_ENCODE_AUDIO_SAMPLE}
 )
+
+# add_executable(
+#     de
+#     ${SOURCE_DECODE_ENCODE}
+# )
 
 # add_executable(output-example ${SOURCE_OUTPUT_EXAMPLE})
 
@@ -55,6 +62,10 @@ target_link_libraries(
 target_link_libraries(
     some_audio_decode_convert_encode_sample -lavformat -lswscale -lavcodec -lavutil -lswresample
 )
+
+# target_link_libraries(
+#     de  -lavformat -lswscale -lavcodec -lavutil -lswresample
+# )
 
 # target_link_libraries(
 #     output-example -lavformat -lswscale -lavcodec -lavutil
