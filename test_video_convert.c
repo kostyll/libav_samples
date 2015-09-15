@@ -248,6 +248,12 @@ int main(int argc, char ** argv) {
     AVCodecContext* iacodec_ctx = ifmt_ctx->streams[audio_stream]->codec;
     AVCodec* iacodec = avcodec_find_decoder(iacodec_ctx->codec_id);
 
+    fprintf(stdout, 
+        "Vctx->tb.den = %d, Vctx->tb.num = %d Actx->tb.den = %d, Actx->tb.num = %d\nVst->tb.den = %d, Vst->tb.num = %d Ast->tb.den = %d Ast->tb.num = %d\n",
+        ivcodec_ctx->time_base.den, ivcodec_ctx->time_base.num, iacodec_ctx->time_base.den, iacodec_ctx->time_base.num,
+        video_st->time_base.den, video_st->time_base.num, audio_st->time_base.den, audio_st->time_base.num
+    );
+
     err = avcodec_open2(ivcodec_ctx, ivcodec, NULL);
     if (err < 0) {
         fprintf(stderr, "ffmpeg: Unable to open video codec\n");
@@ -333,9 +339,9 @@ int main(int argc, char ** argv) {
     oacodec_ctx->channels    = iacodec_ctx->channels;
     oacodec_ctx->channel_layout = iacodec_ctx->channel_layout;
     // oacodec_ctx->time_base = iacodec_ctx->time_base;
-    // oacodec_ctx->time_base = (AVRational){ 1, oacodec_ctx->sample_rate } ;
-    oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
-    oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
+    oacodec_ctx->time_base = (AVRational){ 1, oacodec_ctx->sample_rate } ;
+    // oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
+    // oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
 
     // if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
     //     fprintf(stdout, "ASASASASASA\n");
@@ -368,8 +374,8 @@ int main(int argc, char ** argv) {
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
 
-    ovideo_st->time_base = ovcodec_ctx->time_base;
-    oaudio_st->time_base = oacodec_ctx->time_base;
+    // ovideo_st->time_base = ovcodec_ctx->time_base;
+    // oaudio_st->time_base = oacodec_ctx->time_base;
 
     fprintf(stdout, "ovstream_ctx = %p\n", ovstream->codec);
     fprintf(stdout, "oastream_ctx = %p\n", oastream->codec);
@@ -471,7 +477,11 @@ int main(int argc, char ** argv) {
             avcodec_decode_video2(ivcodec_ctx, frame, &frame_finished, &packet);
             // fprintf(stdout, "DECODED\n");
             fprintf(stdout, "vp decoded.frame.pts = %d\n", frame->pts);
-            fprintf(stdout, "scaling vpts wiht video_st->tb = %d, ivc_ctx->tb = %d\n", video_st->time_base, ivcodec_ctx->time_base);
+            fprintf(stdout, "scaling vpts wiht video_st->tb = %d, ivc_ctx->tb = %d\nvideo_st.tb.den = %d, video_st.tb.num = %d, ivcctx.tb.den = %d, ivcctx.tb.num = %d\n",
+                video_st->time_base, ivcodec_ctx->time_base,
+                video_st->time_base.den, video_st->time_base.num,
+                ivcodec_ctx->time_base.den, ivcodec_ctx->time_base.num
+            );
             frame->pts = av_rescale_q(packet.pts, video_st->time_base, ivcodec_ctx->time_base);
             fprintf(stdout, "vp decoded.frame.pts = %d\n", frame->pts);
 
@@ -534,7 +544,12 @@ int main(int argc, char ** argv) {
 
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet_copy);
             fprintf(stdout, "ap decoded.frame.pts = %d\n", frame->pts);
-            fprintf(stdout, "scaling apts wiht audio_st->tb = %d, iac_ctx->tb = %d\n", audio_st->time_base, iacodec_ctx->time_base);
+            fprintf(stdout,
+                "scaling apts wiht audio_st->tb = %d, iac_ctx->tb = %d\naudio_st.tb.den = %d, audio_st.tb.num = %d, iacctx.tb.den = %d, iacctx.tb.num = %d\n",
+                audio_st->time_base, iacodec_ctx->time_base,
+                audio_st->time_base.den, audio_st->time_base.num,
+                iacodec_ctx->time_base.den, iacodec_ctx->time_base.num
+                );
 
             aframe->pts = av_rescale_q(packet_copy.pts, audio_st->time_base, iacodec_ctx->time_base);
             fprintf(stdout, "ap decoded.frame.pts = %d\n", frame->pts);
