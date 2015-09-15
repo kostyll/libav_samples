@@ -34,6 +34,11 @@ set (
     "print_packets_pts.c"
 )
 
+set (
+    SOURCE_REMUXING
+    "remuxing.c"
+)
+
 add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
 add_executable(
@@ -44,6 +49,11 @@ add_executable(
 add_executable(
     print_pts
     ${SOURCE_PRINT_PACKETS_PTS}
+)
+
+add_executable(
+    remuxing
+    ${SOURCE_REMUXING}
 )
 
 # add_executable(
@@ -75,6 +85,10 @@ target_link_libraries(
 
 target_link_libraries(
     print_pts -lavformat -lavcodec
+)
+
+target_link_libraries(
+    remuxing -lavformat -lavcodec  -lavutil
 )
 
 # target_link_libraries(
