@@ -67,6 +67,7 @@ int main(int argc, char **argv){
     }
 
     av_register_all();
+    avformat_network_init();
 
     infile = argv[1];
     if (!as_csv) fprintf(stdout, "File to analize = %s\n", infile);
