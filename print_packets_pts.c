@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <libavformat/avformat.h>
 
+#define true 1
+#define false 0
 
 
 int get_video_stream(AVFormatContext * fmt_ctx) {
@@ -38,19 +41,35 @@ int get_audio_stream(AVFormatContext * fmt_ctx) {
 int main(int argc, char **argv){
     AVPacket inPacket;
     AVFormatContext *ifmt_ctx = NULL;
+    int as_csv = false;
+    int v = false;
+    int a = false;
     char *infile = NULL;
     int ret;
     int video_stream = -1;
     int audio_stream = -1;
-    if (argc != 2){
+    if (argc < 2){
         fprintf(stdout, "USAGE: %s <infile>\n", argv[0]);
         return 0;
+    }
+    if (argc == 3) {
+        as_csv = true;
+        if (strcmp(argv[2], "all") == 0) {
+            v = true;
+            a = true;
+        }
+        if (strcmp(argv[2], "video") == 0) {
+            v = true;
+        }
+        if (strcmp(argv[2], "audio") == 0) {
+            a = true;
+        }
     }
 
     av_register_all();
 
     infile = argv[1];
-    fprintf(stdout, "File to analize = %s\n", infile);
+    if (!as_csv) fprintf(stdout, "File to analize = %s\n", infile);
     ifmt_ctx = avformat_alloc_context();
     ret =  avformat_open_input(&ifmt_ctx, infile, NULL, NULL);
     if (ret < 0) {
@@ -60,17 +79,19 @@ int main(int argc, char **argv){
 
     video_stream = get_video_stream(ifmt_ctx);
     audio_stream = get_audio_stream(ifmt_ctx);
-    av_dump_format(ifmt_ctx, 0, infile, 0);
+    if (!as_csv) av_dump_format(ifmt_ctx, 0, infile, 0);
     av_init_packet(&inPacket);
     inPacket.data = NULL;
     inPacket.size = 0;
 
     while (av_read_frame(ifmt_ctx, &inPacket) >= 0) {
-        fprintf(stdout, "Packet.pts = %d ", inPacket.pts);
+        if (!as_csv) fprintf(stdout, "Packet.pts = %d ", inPacket.pts); 
         if (inPacket.stream_index == video_stream) {
-            fprintf(stdout, "VIDEO packet\n");
+            if (!as_csv) fprintf(stdout, "VIDEO packet\n");
+            else if (v) fprintf(stdout, "V, %d,\n", inPacket.pts);
         } else if (inPacket.stream_index == audio_stream) {
-            fprintf(stdout, "AUDIO packet\n");
+            if (!as_csv) fprintf(stdout, "AUDIO packet\n");
+            else if (a) fprintf(stdout, "A, %d,\n", inPacket.pts);
         } else fprintf(stdout, "***** packet\n");
     }
 }
