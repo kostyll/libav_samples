@@ -495,6 +495,8 @@ int main(int argc, char ** argv) {
                     // target_packet.pts = frame->pts;
                     // target_packet.dts = av_rescale_q(0, ovcodec_ctx->time_base, ovideo_st->time_base);
                     fprintf(stdout, "[V]...packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
+                    // target_packet.pts = frame->pts;
+                    target_packet.pos = -1;
                     if (target_packet.pts != AV_NOPTS_VALUE)
                         target_packet.pts = av_rescale_q(
                             target_packet.pts, ovcodec_ctx->time_base, ovideo_st->time_base);
@@ -502,8 +504,6 @@ int main(int argc, char ** argv) {
                         target_packet.dts = av_rescale_q(
                             target_packet.dts, ivcodec_ctx->time_base, ovcodec_ctx->time_base
                         );
-                    // target_packet.pos = -1;
-                    // target_packet.pts = frame->pts;
                     // target_packet.dts = 0;
                     fprintf(stdout, "[V]packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
 
@@ -599,13 +599,13 @@ int main(int argc, char ** argv) {
                         // outPacket.pts = (int64_t)audio_pts;
                         // outPacket.pts = daframe->pts;
                         fprintf(stdout, "[A]....outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
+                        // outPacket.pts = frame->pts;
+                        outPacket.pos = -1;
                         if (outPacket.pts != AV_NOPTS_VALUE)
                             outPacket.pts = av_rescale_q(outPacket.pts, oacodec_ctx->time_base, oaudio_st->time_base);
                         if (outPacket.dts != AV_NOPTS_VALUE)
                             outPacket.dts = av_rescale_q(0, oacodec_ctx->time_base, oaudio_st->time_base);                        
-                        // outPacket.pts = frame->pts;
                         // outPacket.dts = 0;
-                        outPacket.pos = -1;
                         fprintf(stdout, "[A]outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
                         // outPacket.dts = av_rescale_q_rnd(outPacket.dts, iacodec_ctx->time_base, oacodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
                         // outPacket.duration = av_rescale_q(outPacket.duration, iacodec_ctx->time_base, oacodec_ctx->time_base);
