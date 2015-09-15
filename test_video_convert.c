@@ -343,11 +343,11 @@ int main(int argc, char ** argv) {
     // oacodec_ctx->time_base.den = iacodec_ctx->time_base.den;
     // oacodec_ctx->time_base.num = iacodec_ctx->time_base.num;
 
-    // if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-    //     fprintf(stdout, "ASASASASASA\n");
-    //     ovstream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-    //     oastream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-    // }
+    if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+        fprintf(stdout, "ASASASASASA\n");
+        ovstream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        oastream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    }
 
     err = avcodec_open2(ovcodec_ctx, ovcodec, NULL);
     if (err < 0) {
