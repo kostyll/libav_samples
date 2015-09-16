@@ -223,6 +223,7 @@ int main(int argc, char ** argv) {
     outfile = argv[2];
 
     av_register_all();
+    avformat_network_init();
     avcodec_register_all();
     av_log_set_level(AV_LOG_DEBUG);
 
