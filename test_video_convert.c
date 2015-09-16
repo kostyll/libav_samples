@@ -468,6 +468,14 @@ int main(int argc, char ** argv) {
 
         // fprintf(stdout, "packet.pts = %d, packet.dts = %d\n", packet.pts, packet.dts);
         fprintf(stdout, "\npacket.pts = %d, packet.dts = %d, packet_stream = %d vsindx = %d asindx = %d\n", packet.pts, packet.dts, packet.stream_index, video_stream, audio_stream);
+        fprintf(stdout,
+          "video_st->tb = %d, ivc_ctx->tb = %d\nvideo_st.tb.den = %d, video_st.tb.num = %d, ivcctx.tb.den = %d, ivcctx.tb.num = %d\n",
+          video_st->time_base, ivcodec_ctx->time_base, video_st->time_base.den, video_st->time_base.num, ivcodec_ctx->time_base.den, ivcodec_ctx->time_base.num
+        );
+        fprintf(stdout,
+          "audio_st->tb = %d, iac_ctx->tb = %d\naudio_st.tb.den = %d, audio_st.tb.num = %d, iacctx.tb.den = %d, iacctx.tb.num = %d\n",
+          audio_st->time_base, iacodec_ctx->time_base, audio_st->time_base.den, audio_st->time_base.num, iacodec_ctx->time_base.den, iacodec_ctx->time_base.num
+        );
 
         if (packet.stream_index == video_stream)
         {
