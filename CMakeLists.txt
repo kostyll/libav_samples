@@ -44,8 +44,8 @@ set (
     "transcoding.c"
 )
 
-add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
-add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
+# add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
+# add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
 add_executable(
     some_audio_decode_convert_encode_sample
     ${SOURCE_SOME_DECODE_CONVERT_ENCODE_AUDIO_SAMPLE}
@@ -75,13 +75,13 @@ add_executable(
 
 add_executable(test_video_convert ${SOURCE_VIDEO_CONVERT})
 
-target_link_libraries(
-    simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
-)
+# target_link_libraries(
+#     simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+# )
 
-target_link_libraries(
-    simple_ffmpeg_video_audio_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
-)
+# target_link_libraries(
+#     simple_ffmpeg_video_audio_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
+# )
 
 target_link_libraries(
     test_video_convert 
@@ -118,13 +118,13 @@ target_link_libraries(
 set(src_dir "ffmpeg-tutorial0/")
 
 set(list_sources 
-    "tutorial01" 
-    "tutorial02" 
-    "tutorial03" 
-    "tutorial04" 
-    # "tutorial05" 
-    "tutorial06" 
-    "tutorial07" 
+    # "tutorial01" 
+    # "tutorial02" 
+    # "tutorial03" 
+    # "tutorial04" 
+    # # "tutorial05" 
+    # "tutorial06" 
+    # "tutorial07" 
 )
 
 foreach(source ${list_sources})

@@ -4,6 +4,7 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/avutil.h>
+#include <libavutil/frame.h>
 
 #define STREAM_FRAME_RATE 25 /* 25 images/s */
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
@@ -266,7 +267,7 @@ int main(int argc, char ** argv) {
         return -1;
     }    
 
-    AVFrame* frame = avcodec_alloc_frame();
+    AVFrame* frame = av_frame_alloc();
     AVPacket packet;
     AVPacket packet_copy;
     AVPacket target_packet;
