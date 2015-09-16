@@ -371,7 +371,7 @@ int main(int argc, char ** argv) {
     AVStream * ovideo_st = NULL;
     AVStream * oaudio_st = NULL;
     AVFrame* aframe = NULL;
-    AVFrame* daframe = av_frame_alloc();
+    AVFrame* daframe = NULL;
 
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
@@ -633,7 +633,7 @@ int main(int argc, char ** argv) {
                             die("Error while writing audio frame");
                         // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
                         //     die("Error while writing audio frame");
-
+                        av_free_packet(&packet);
                         av_free_packet(&packet_copy);
                         av_free_packet(&outPacket);
                     }
