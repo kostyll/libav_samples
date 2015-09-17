@@ -307,7 +307,7 @@ int main(int argc, char ** argv) {
     ovcodec_ctx = ovstream->codec;
     ovcodec_ctx->codec_id = vcodec_id;
     ovcodec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
-    ovcodec_ctx->bit_rate = ivcodec_ctx->bit_rate;
+    ovcodec_ctx->bit_rate = ivcodec_ctx->bit_rate*4;
     /* Resolution must be a multiple of two. */
     ovcodec_ctx->width    = ivcodec_ctx->width;
     ovcodec_ctx->height   = ivcodec_ctx->height;
@@ -466,8 +466,8 @@ int main(int argc, char ** argv) {
         return (-1);
     };
 
-    int64_t last_vpts = -1;
-    int64_t last_apts = -1;
+    int last_vpts = -1;
+    int last_apts = -1;
 
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
 
@@ -521,6 +521,7 @@ int main(int argc, char ** argv) {
                     target_packet.stream_index = out_video_stream;
                     fprintf(stdout, "[V]...packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
                     if (last_vpts == -1){
+                        fprintf(stdout, "Setting last_vpts\n");
                         last_vpts = target_packet.pts;
                         target_packet.pts = 0;
                     } else {
@@ -608,6 +609,7 @@ int main(int argc, char ** argv) {
                         fprintf(stdout, "[A]....outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
                         outPacket.pos = -1;
                         if (last_apts == -1){
+                            fprintf(stdout, "Setting last_apts\n");
                             last_apts = outPacket.pts;
                             outPacket.pts = 0;
                         } else {
