@@ -6,6 +6,8 @@
 #include <libavutil/avutil.h>
 #include <libavutil/frame.h>
 
+#include "general.h"
+
 #define STREAM_FRAME_RATE 25 /* 25 images/s */
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
 #define STREAM_DURATION   5.0
@@ -32,30 +34,6 @@ static void die(char *str) {
     exit(1);
 }
 
-AVFormatContext * open_input_source(char *source) {
-    AVFormatContext * result = NULL;
-    int err;
-    
-    // Open video file
-    result = avformat_alloc_context();
-    err = avformat_open_input(&result, source, NULL, NULL);
-    if (err < 0) {
-        fprintf(stderr, "ffmpeg: Unable to open input source%s\n", source);
-    }
-
-    // Retrieve stream information
-    err = avformat_find_stream_info(result, NULL);
-    if (err < 0) {
-        fprintf(stderr, "ffmpeg: Unable to find stream info\n");
-    }
-
-    // Dump information about file onto standard error
-
-
-    av_dump_format(result, 0, source, 0);
-
-    return result;
-}
 
 
 int get_video_stream(AVFormatContext * fmt_ctx) {
