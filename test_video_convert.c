@@ -466,6 +466,9 @@ int main(int argc, char ** argv) {
         return (-1);
     };
 
+    int64_t last_vpts = -1;
+    int64_t last_apts = -1;
+
     while(av_read_frame(ifmt_ctx, &packet) >= 0) {
 
         // fprintf(stdout, "video_pts = %f, audio_pts = %f \n", video_pts, audio_pts);
@@ -495,10 +498,7 @@ int main(int argc, char ** argv) {
             fprintf(stdout, "Video stream\n");
             int frame_finished;
             int frame_encoded;
-            // fprintf(stdout, "PACKAT FROM VIDEOSTREAM\n");
-
             avcodec_decode_video2(ivcodec_ctx, frame, &frame_finished, &packet);
-            // fprintf(stdout, "DECODED\n");
             fprintf(stdout, "vp decoded.frame.pts = %d\n", frame->pts);
             fprintf(stdout, "scaling vpts with:\nvideo_st.tb.den = %d, video_st.tb.num = %d, ivcctx.tb.den = %d, ivcctx.tb.num = %d\n",
                 video_st->time_base.den, video_st->time_base.num,
@@ -518,40 +518,22 @@ int main(int argc, char ** argv) {
                 if (frame_encoded) {
                     video_pts += ((double)ovcodec_ctx->time_base.num / (double)ovcodec_ctx-> time_base.den) ;
                     fprintf(stdout, "video_pts = %f\n", video_pts);
-                    // fprintf(stdout, "ctx.tb = %d, st.tb = %d\n", ovcodec_ctx->time_base, ovideo_st->time_base);
-                    // av_packet_rescale_ts(&target_packet, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
-                    // target_packet.pts = (int64_t)video_pts;
-                    // target_packet.pts = 0;
-                    // target_packet.dts = video_pts;
-                    // fprintf(stdout, "video_rescaled_ts = %d\n", target_packet.dts);
                     target_packet.stream_index = out_video_stream;
-                    // target_packet.pts = frame->pts;
-                    // target_packet.dts = av_rescale_q(0, ovcodec_ctx->time_base, ovideo_st->time_base);
                     fprintf(stdout, "[V]...packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
-                    // target_packet.pts = frame->pts;
+                    if (last_vpts == -1){
+                        last_vpts = target_packet.pts;
+                        target_packet.pts = 0;
+                    } else {
+                        target_packet.pts -= last_vpts;
+                    }                    
                     target_packet.pos = -1;
-                    if (target_packet.pts != AV_NOPTS_VALUE)
-                        target_packet.pts = av_rescale_q(
-                            target_packet.pts, ovcodec_ctx->time_base, ovideo_st->time_base);
-                    if (target_packet.dts != AV_NOPTS_VALUE)
-                        target_packet.dts = av_rescale_q(
-                            target_packet.dts, ivcodec_ctx->time_base, ovcodec_ctx->time_base
-                        );
+                    target_packet.pts = av_rescale_q(target_packet.pts, ovcodec_ctx->time_base, ovideo_st->time_base);
                     target_packet.dts = AV_NOPTS_VALUE;
-                    // target_packet.dts = 0;
+
                     fprintf(stdout, "[V]packet.pts = %d, packet.dts = %d \n", target_packet.pts, target_packet.dts);
-
-                    // target_packet.duration = av_rescale_q(target_packet.duration, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
-
-                    // fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
                     if (av_interleaved_write_frame(ofmt_ctx, &target_packet) !=0)
                             die("Error while writing video frame");
-                    // if (av_write_frame(ofmt_ctx, &target_packet) != 0)
-                    //         die("Error while writing video frame");
-                    // av_write_frame(ofmt_ctx, &target_packet);
-                    // fprintf(stdout, "VIDEO  WRITTEN\n");
                     av_free_packet(&target_packet);
-                    // }
                     av_free_packet(&packet);
                 }
                 
@@ -565,8 +547,6 @@ int main(int argc, char ** argv) {
             int frame_encoded;
             int dst_nb_samples;
             av_copy_packet(&packet_copy, &packet);
-
-
             avcodec_decode_audio4(iacodec_ctx, aframe, &frame_finished, &packet_copy);
             fprintf(stdout, "ap decoded.frame.pts = %d\n", frame->pts);
             fprintf(stdout,
@@ -579,140 +559,72 @@ int main(int argc, char ** argv) {
             fprintf(stdout, "ap decoded.frame.pts = %d\n", frame->pts);
 
             if (frame_finished ) {
-
-                // Convert
-
                 uint8_t **convertedData=NULL;
-
                 if (av_samples_alloc(&convertedData,
                              NULL,
                              iacodec_ctx->channels,
                              daframe->nb_samples,
                              oacodec_ctx->sample_fmt, 0) < 0)
                     die("Could not allocate samples");
-
                 int outSamples = swr_convert(swr_ctx, NULL, 0,
-                             //&convertedData,
-                             //audioFrameConverted->nb_samples,
                              (const uint8_t **)aframe->data,
                              aframe->nb_samples);
                 if (outSamples < 0) die("Could not convert");
 
                 for (;;) {
-                     outSamples = swr_get_out_samples(swr_ctx, 0);
-                     if (outSamples < oacodec_ctx->frame_size) break;
 
-                     outSamples = swr_convert(swr_ctx,
-                                              &convertedData,
-                                              daframe->nb_samples, NULL, 0);
+                         outSamples = swr_get_out_samples(swr_ctx, 0);
+                             if (outSamples < oacodec_ctx->frame_size) break;
+                             outSamples = swr_convert(swr_ctx,
+                                                      &convertedData,
+                                                      daframe->nb_samples, NULL, 0);
 
-                     size_t buffer_size = av_samples_get_buffer_size(NULL,
-                                    oacodec_ctx->channels,
-                                    daframe->nb_samples,
-                                    oacodec_ctx->sample_fmt,
-                                    0);
-                    if (buffer_size < 0) die("Invalid buffer size");
-
-                    if (avcodec_fill_audio_frame(daframe,
-                             oacodec_ctx->channels,
-                             oacodec_ctx->sample_fmt,
-                             convertedData,
-                             buffer_size,
-                             0) < 0)
-                        die("Could not fill frame");
+                             size_t buffer_size = av_samples_get_buffer_size(NULL,
+                                            oacodec_ctx->channels,
+                                            daframe->nb_samples,
+                                            oacodec_ctx->sample_fmt,
+                                            0);
+                            if (buffer_size < 0) die("Invalid buffer size");
+                            if (avcodec_fill_audio_frame(daframe,
+                                     oacodec_ctx->channels,
+                                     oacodec_ctx->sample_fmt,
+                                     convertedData,
+                                     buffer_size,
+                                     0) < 0)
+                                die("Could not fill frame");
 
                     AVPacket outPacket;
                     av_init_packet(&outPacket);
                     outPacket.data = NULL;
                     outPacket.size = 0;
-
                     daframe->pts = aframe->pts;
                     daframe->pts = av_rescale_q(daframe->pts, iacodec_ctx->time_base, oacodec_ctx->time_base);
-
                     if (avcodec_encode_audio2(oacodec_ctx, &outPacket, daframe, &frame_finished) < 0)
                         die("Error encoding audio frame");
-
                     if (frame_finished) {
                         outPacket.stream_index = out_audio_stream;
-                        // audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
-                        // outPacket.pts = (int64_t)audio_pts;
-                        // outPacket.pts = daframe->pts;
+                        audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
+                        fprintf(stdout, "audio_pts = %f\n", audio_pts);
                         fprintf(stdout, "[A]....outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
-                        // outPacket.pts = frame->pts;
                         outPacket.pos = -1;
-                        if (outPacket.pts != AV_NOPTS_VALUE)
-                            outPacket.pts = av_rescale_q(outPacket.pts, oacodec_ctx->time_base, oaudio_st->time_base);
-                        if (outPacket.dts != AV_NOPTS_VALUE)
-                            outPacket.dts = av_rescale_q(0, oacodec_ctx->time_base, oaudio_st->time_base);                        
-                        // outPacket.dts = 0;
+                        if (last_apts == -1){
+                            last_apts = outPacket.pts;
+                            outPacket.pts = 0;
+                        } else {
+                            outPacket.pts -= last_apts;
+                        }
+                        outPacket.pts = av_rescale_q(outPacket.pts, oacodec_ctx->time_base, oaudio_st->time_base);
                         outPacket.dts = AV_NOPTS_VALUE;
+
                         fprintf(stdout, "[A]outPacket.pts = %d, outPacket.dts = %d \n", outPacket.pts, outPacket.dts);
-                        // outPacket.dts = av_rescale_q_rnd(outPacket.dts, iacodec_ctx->time_base, oacodec_ctx->time_base, AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
-                        // outPacket.duration = av_rescale_q(outPacket.duration, iacodec_ctx->time_base, oacodec_ctx->time_base);
-
-
-
                         if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
                             die("Error while writing audio frame");
-                        // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
-                        //     die("Error while writing audio frame");
                         av_free_packet(&packet);
                         av_free_packet(&packet_copy);
                         av_free_packet(&outPacket);
                     }
                 }
                 if (convertedData) av_free(&convertedData[0]);
-                // av_freep(&convertedData);
-
-                // int size = av_samples_get_buffer_size (NULL,
-                //                                    iacodec_ctx->channels,
-                //                                    aframe->nb_samples,
-                //                                    iacodec_ctx->sample_fmt,
-                //                                    1);
-
-                // fwrite(aframe->data[0], 1, size, src_pcm);
-
-                // av_init_packet(&target_packet);
-                // target_packet.size = 0;
-                // target_packet.data = NULL;
-
-                // ret = swr_convert_frame(swr_ctx, aframe, daframe);
-                // // fprintf(stdout, "AUDIO DAFRAME samples = %d size = %p\n", daframe->nb_samples, daframe->data);               
-                // if (ret < 0) {
-                //     fprintf(stderr, "Error while converting\n");
-                //     exit(1);
-                // }
-                // if (!check_sample_fmt(oacodec, oacodec_ctx->sample_fmt)) {
-                //     fprintf(stderr, "Encoder does not support sample format %s",
-                //             av_get_sample_fmt_name(oacodec_ctx->sample_fmt));
-                //     exit(1);
-                // }
-                // // fprintf(stdout, "AUDIO Encoding...\n");
-                // ret = avcodec_encode_audio2(oacodec_ctx, &target_packet, daframe, &frame_encoded);
-
-                // fprintf(stdout, "Done with %d pkt_size = %d!, ret = %d\n", frame_encoded, target_packet.size, ret);
-                // if (frame_encoded) {
-
-                //     audio_pts += (double)daframe->nb_samples*((double)oacodec_ctx->time_base.num / (double)oacodec_ctx-> time_base.den);
-
-                //     fprintf(stdout, "A ctx.tb = %d, st.tb = %d\n", oacodec_ctx->time_base, oaudio_st->time_base);
-                //     // av_packet_rescale_ts(&target_packet, oacodec_ctx->time_base, oaudio_st->time_base);
-                //     target_packet.pts = audio_pts;
-                //     target_packet.dts = 0;
-                //     fprintf(stdout, "audio_rescaled_ts = %d\n", target_packet.dts);                    
-                //     target_packet.stream_index = out_audio_stream;
-                //     fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
-                //     // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                //     av_write_frame(ofmt_ctx, &target_packet);
-                    
-                //     fprintf(stdout, "AUDIO WRITTEN\n");
-
-                //     fwrite(target_packet.data, 1, target_packet.size, scaled_pcm);
-
-                //     av_free_packet(&packet);
-                //     av_free_packet(&target_packet);
-                // }
-
             }
         }
 
