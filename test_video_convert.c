@@ -4,6 +4,7 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/avutil.h>
+#include <libavutil/frame.h>
 
 #define STREAM_FRAME_RATE 25 /* 25 images/s */
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
@@ -222,6 +223,7 @@ int main(int argc, char ** argv) {
     outfile = argv[2];
 
     av_register_all();
+    avformat_network_init();
     avcodec_register_all();
     av_log_set_level(AV_LOG_DEBUG);
 
@@ -266,7 +268,7 @@ int main(int argc, char ** argv) {
         return -1;
     }    
 
-    AVFrame* frame = avcodec_alloc_frame();
+    AVFrame* frame = av_frame_alloc();
     AVPacket packet;
     AVPacket packet_copy;
     AVPacket target_packet;
@@ -369,7 +371,7 @@ int main(int argc, char ** argv) {
     AVStream * ovideo_st = NULL;
     AVStream * oaudio_st = NULL;
     AVFrame* aframe = NULL;
-    AVFrame* daframe = av_frame_alloc();
+    AVFrame* daframe = NULL;
 
     ovideo_st = ofmt_ctx->streams[out_video_stream];
     oaudio_st = ofmt_ctx->streams[out_audio_stream];
@@ -466,6 +468,14 @@ int main(int argc, char ** argv) {
 
         // fprintf(stdout, "packet.pts = %d, packet.dts = %d\n", packet.pts, packet.dts);
         fprintf(stdout, "\npacket.pts = %d, packet.dts = %d, packet_stream = %d vsindx = %d asindx = %d\n", packet.pts, packet.dts, packet.stream_index, video_stream, audio_stream);
+        fprintf(stdout,
+          "video_st->tb = %d, ivc_ctx->tb = %d\nvideo_st.tb.den = %d, video_st.tb.num = %d, ivcctx.tb.den = %d, ivcctx.tb.num = %d\n",
+          video_st->time_base, ivcodec_ctx->time_base, video_st->time_base.den, video_st->time_base.num, ivcodec_ctx->time_base.den, ivcodec_ctx->time_base.num
+        );
+        fprintf(stdout,
+          "audio_st->tb = %d, iac_ctx->tb = %d\naudio_st.tb.den = %d, audio_st.tb.num = %d, iacctx.tb.den = %d, iacctx.tb.num = %d\n",
+          audio_st->time_base, iacodec_ctx->time_base, audio_st->time_base.den, audio_st->time_base.num, iacodec_ctx->time_base.den, iacodec_ctx->time_base.num
+        );
 
         if (packet.stream_index == video_stream)
         {
@@ -631,7 +641,7 @@ int main(int argc, char ** argv) {
                             die("Error while writing audio frame");
                         // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
                         //     die("Error while writing audio frame");
-
+                        av_free_packet(&packet);
                         av_free_packet(&packet_copy);
                         av_free_packet(&outPacket);
                     }
