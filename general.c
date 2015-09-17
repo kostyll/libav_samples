@@ -2,6 +2,13 @@
 
 #include "general.h"
 
+
+void die(char *str) {
+    fprintf(stderr, "%s\n", str);
+    exit(1);
+}
+
+
 AVFormatContext * open_input_source(char *source) {
     AVFormatContext * result = NULL;
     int err;

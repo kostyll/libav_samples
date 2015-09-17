@@ -12,11 +12,6 @@
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
 #define STREAM_DURATION   5.0
 
-static void die(char *str) {
-    fprintf(stderr, "%s\n", str);
-    exit(1);
-}
-
 
 static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
                                   uint64_t channel_layout,
@@ -28,7 +23,7 @@ static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
         fprintf(stderr, "Error allocating an audio frame\n");
         exit(1);
     }
-    frame->format = sample_fmt;
+    frame->format = sample_fmt; 
     frame->channel_layout = channel_layout;
     frame->channels = channels;
     frame->sample_rate = sample_rate;

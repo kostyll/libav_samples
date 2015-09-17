@@ -3,6 +3,8 @@
 
 #include <libavformat/avformat.h>
 
+void die(char *str);
+
 AVFormatContext * open_input_source(char *source);
 
 int get_video_stream(AVFormatContext * fmt_ctx);
