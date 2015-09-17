@@ -544,9 +544,10 @@ int main(int argc, char ** argv) {
                     // target_packet.duration = av_rescale_q(target_packet.duration, ivcodec_ctx->time_base, ovcodec_ctx->time_base);
 
                     // fprintf(stdout, "target_packet.pts = %d, target_packet.dts = %d\n", target_packet.pts, target_packet.dts);
-                    // av_interleaved_write_frame(ofmt_ctx, &target_packet);
-                    if (av_write_frame(ofmt_ctx, &target_packet) != 0)
-                            die("Error while writing audio frame");
+                    if (av_interleaved_write_frame(ofmt_ctx, &target_packet) !=0)
+                            die("Error while writing video frame");
+                    // if (av_write_frame(ofmt_ctx, &target_packet) != 0)
+                    //         die("Error while writing video frame");
                     // av_write_frame(ofmt_ctx, &target_packet);
                     // fprintf(stdout, "VIDEO  WRITTEN\n");
                     av_free_packet(&target_packet);
@@ -651,10 +652,10 @@ int main(int argc, char ** argv) {
 
 
 
-                        // if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
-                        //     die("Error while writing audio frame");
-                        if (av_write_frame(ofmt_ctx, &outPacket) != 0)
+                        if (av_interleaved_write_frame(ofmt_ctx, &outPacket) != 0)
                             die("Error while writing audio frame");
+                        // if (av_write_frame(ofmt_ctx, &outPacket) != 0)
+                        //     die("Error while writing audio frame");
                         av_free_packet(&packet);
                         av_free_packet(&packet_copy);
                         av_free_packet(&outPacket);
