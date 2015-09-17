@@ -12,56 +12,9 @@
 #define STREAM_PIX_FMT PIX_FMT_YUV420P /* default pix_fmt */
 #define STREAM_DURATION   5.0
 
-// a wrapper around a single output AVStream
-typedef struct OutputStream {
-    AVStream *st;
-
-    /* pts of the next frame that will be generated */
-    int64_t next_pts;
-    int samples_count;
-
-    AVFrame *frame;
-    AVFrame *tmp_frame;
-
-    float t, tincr, tincr2;
-
-    struct SwsContext *sws_ctx;
-    struct SwrContext *swr_ctx;
-} OutputStream;
-
 static void die(char *str) {
     fprintf(stderr, "%s\n", str);
     exit(1);
-}
-
-
-
-int get_video_stream(AVFormatContext * fmt_ctx) {
-    int video_stream;
-    for (video_stream = 0; video_stream < fmt_ctx->nb_streams; ++video_stream){
-        if (fmt_ctx->streams[video_stream]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
-            break;
-        }
-    }
-    if (video_stream == fmt_ctx->nb_streams) {
-        fprintf(stderr, "ffmpeg: Unable to find video stream\n");
-        video_stream = -1;
-    }
-    return video_stream;
-}
-
-int get_audio_stream(AVFormatContext * fmt_ctx) {
-    int audio_stream;
-    for (audio_stream = 0; audio_stream < fmt_ctx->nb_streams; ++audio_stream){
-        if (fmt_ctx->streams[audio_stream]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
-            break;
-        }
-    }
-    if (audio_stream == fmt_ctx->nb_streams) {
-        fprintf(stderr, "ffmpeg: Unable to find audio stream\n");
-        audio_stream = -1;
-    }
-    return audio_stream;
 }
 
 
@@ -89,103 +42,6 @@ static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
     }
     return frame;
 }
-
-void open_audio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg)
-{
-       AVCodecContext *c; 
-       int nb_samples;
-       int ret;
-       AVDictionary *opt = NULL;
-   
-       c = ost->st->codec;
-   
-      /* open it */
-       av_dict_copy(&opt, opt_arg, 0);
-       ret = avcodec_open2(c, codec, &opt);
-       av_dict_free(&opt);
-       if (ret < 0) {
-           fprintf(stderr, "Could not open audio codec: %s\n", av_err2str(ret));
-           exit(1);
-       }
-   
-       /* init signal generator */
-       ost->t     = 0;
-       ost->tincr = 2 * M_PI * 110.0 / c->sample_rate;
-       /* increment frequency by 110 Hz per second */
-       ost->tincr2 = 2 * M_PI * 110.0 / c->sample_rate / c->sample_rate;
-   
-       if (c->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
-           nb_samples = 10000;
-       else
-           nb_samples = c->frame_size;
-   
-       ost->frame     = alloc_audio_frame(c->sample_fmt, c->channel_layout,
-                                          c->sample_rate, nb_samples, c->channels);
-       ost->tmp_frame = alloc_audio_frame(c->sample_fmt, c->channel_layout,
-                                          c->sample_rate, nb_samples, c->channels);
-  
-       /* create resampler context */
-           ost->swr_ctx = swr_alloc();
-           if (!ost->swr_ctx) {
-               fprintf(stderr, "Could not allocate resampler context\n");
-               exit(1);
-           }
-   
-           /* set options */
-           av_opt_set_int       (ost->swr_ctx, "in_channel_count",   c->channels,       0);
-           av_opt_set_int       (ost->swr_ctx, "in_sample_rate",     c->sample_rate,    0);
-           av_opt_set_sample_fmt(ost->swr_ctx, "in_sample_fmt",      c->sample_fmt,     0);
-           av_opt_set_int       (ost->swr_ctx, "out_channel_count",  c->channels,       0);
-           av_opt_set_int       (ost->swr_ctx, "out_sample_rate",    c->sample_rate,    0);
-           av_opt_set_sample_fmt(ost->swr_ctx, "out_sample_fmt",     c->sample_fmt,     0);
-   
-           /* initialize the resampling context */
-           if ((ret = swr_init(ost->swr_ctx)) < 0) {
-               fprintf(stderr, "Failed to initialize the resampling context\n");
-               exit(1);
-           }
-}
-
- /* Prepare a 16 bit dummy audio frame of 'frame_size' samples and
-  * 'nb_channels' channels. */
-AVFrame *get_audio_frame(OutputStream *ost)
-{
-    AVFrame *frame = ost->tmp_frame;
-    int j, i, v;
-    int16_t *q = (int16_t*)frame->data[0];
-
-    /* check if we want to generate more frames */
-    if (av_compare_ts(ost->next_pts, ost->st->codec->time_base,
-                   STREAM_DURATION, (AVRational){ 1, 1 }) >= 0)
-     return NULL;
-
-    for (j = 0; j <frame->nb_samples; j++) {
-     v = (int)(sin(ost->t) * 10000);
-     for (i = 0; i < ost->st->codec->channels; i++)
-         *q++ = v;
-     ost->t     += ost->tincr;
-     ost->tincr += ost->tincr2;
-    }
-
-    frame->pts = ost->next_pts;
-    ost->next_pts  += frame->nb_samples;
-
-    return frame;
-}
-
- static int check_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
-{
-    const enum AVSampleFormat *p = codec->sample_fmts;
-
-    while (*p != AV_SAMPLE_FMT_NONE) {
-        if (*p == sample_fmt)
-            return 1;
-        p++;
-    }
-    return 0;
-}
-
-
 int main(int argc, char ** argv) {
 
     char * infile = NULL;
@@ -308,11 +164,8 @@ int main(int argc, char ** argv) {
         ovcodec_ctx->mb_decision = 2;
     }
 
-    OutputStream oast = { 0 } ;
     oastream = avformat_new_stream(ofmt_ctx, oacodec);
     oacodec_ctx = oastream->codec;
-    oast.st = oastream;
-    oast.st->id = ofmt_ctx->nb_streams-1;
 
     oacodec_ctx->sample_fmt  = iacodec_ctx->sample_fmt;
     oacodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
