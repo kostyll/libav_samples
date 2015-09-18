@@ -92,6 +92,7 @@ struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * ou
     if ((swr_ctx = swr_alloc()) == NULL)
         die("Cannot allocate audio swr context\n");
 
+
     av_opt_set_int       (swr_ctx, "in_channel_count",   in_ctx->channels,          0);
     av_opt_set_int       (swr_ctx, "in_sample_rate",     in_ctx->sample_rate,       0);
     av_opt_set_int       (swr_ctx, "in_ch_layout",       in_ctx->channel_layout,    0);
@@ -122,18 +123,23 @@ InputSource * open_source(char * url, int video, int audio){
         source->video = get_video_stream(ctx);
         source->video_st = ctx->streams[source->video];
         source->vctx = source->video_st->codec;
-        source->vc = source->vctx->codec;
+        source->vc = avcodec_find_decoder(source->vctx->codec_id);
+        if (source->vc == NULL) die("Cannot find video decoder\n");
+        if (avcodec_open2(source->vctx, source->vc, NULL) < 0) die("Cannot open video decoder\n");
     }
     if (audio != 0){
         source->audio = get_audio_stream(ctx);
         source->audio_st = ctx->streams[source->audio];
         source->actx = source->audio_st->codec;
-        source->ac = source->actx->codec;
+        source->ac = avcodec_find_decoder(source->actx->codec_id);
+        if (source->ac == NULL) die("Cannot find audio decoder\n");
+        if (avcodec_open2(source->actx, source->ac, NULL) < 0) die("Cannot open audio decoder\n");
     }
+    return source;
 }
 
 
-AVCodecContext * general_make_video(
+AVStream * general_make_video(
     AVFormatContext *ctx,
     AVCodecContext * cctx,
     char * outfile
@@ -164,11 +170,11 @@ AVCodecContext * general_make_video(
 
     if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open video codec\n");
 
-    return codec_ctx;
+    return stream;
 }
 
 
-AVCodecContext * general_make_audio(
+AVStream * general_make_audio(
     AVFormatContext *ctx,
     AVCodecContext *cctx,
     char * outfile
@@ -201,7 +207,7 @@ AVCodecContext * general_make_audio(
 
     if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open audio encoder\n");
 
-    return codec_ctx;
+    return stream;
 }
 
 
@@ -245,8 +251,8 @@ void duplicate_audio_context_params(
 
 Output * open_output(
     char * outfile,
-    AVCodecContext*(*make_video)(AVFormatContext *, AVCodecContext *, char *),
-    AVCodecContext*(*make_audio)(AVFormatContext *, AVCodecContext *, char *),
+    AVStream*(*make_video)(AVFormatContext *, AVCodecContext *, char *),
+    AVStream*(*make_audio)(AVFormatContext *, AVCodecContext *, char *),
     InputSource * source,
     int video,
     int audio
@@ -271,7 +277,8 @@ Output * open_output(
             //Building codec and it's context
             if (source == NULL) {
                 //Generating default params
-                output->vctx = general_make_video(output->ctx, NULL, NULL);
+                output->video_st = general_make_video(output->ctx, NULL, NULL); 
+                output->vctx = output->video_st->codec;
             } else {
                 //Duplicating params
                 AVCodec * codec = NULL;;
@@ -282,6 +289,7 @@ Output * open_output(
 
                 stream = avformat_new_stream(output->ctx, codec);
                 if (stream == NULL) die("Cannot append output video stream\n");
+                output->video_st = stream;
 
                 output->vctx = stream->codec;
                 output->vctx->codec_id = stream->codec->codec_id;
@@ -292,7 +300,8 @@ Output * open_output(
             }
 
         } else {
-            output->vctx = make_video(output->ctx, source, output->url);
+            output->video_st = make_video(output->ctx, source, output->url);
+            output->vctx = output->video_st->codec;
         }
         output->vc = output->vctx->codec;
         output->video = get_video_stream(output->ctx);
@@ -304,7 +313,8 @@ Output * open_output(
             //Building codec and it's context
             if (source == NULL) {
                 //Generating with default format params
-                output->actx = general_make_audio(output->ctx, NULL, NULL);
+                output->audio_st = general_make_audio(output->ctx, NULL, NULL);
+                output->actx = output->audio_st->codec;
             } else {
                 //Duplicating params
                 AVCodec * codec = NULL;
@@ -325,7 +335,8 @@ Output * open_output(
             }
         } else {
             //Making with make_audio helper
-            output->actx = make_audio(output->ctx, source, output->url);
+            output->audio_st = make_audio(output->ctx, source, output->url);
+            output->actx = output->audio_st->codec;
         }
         output->ac = output->actx->codec;
         output->audio = get_audio_stream(output->ctx);

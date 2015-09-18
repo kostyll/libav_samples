@@ -45,8 +45,8 @@ InputSource * open_source(char * url, int video, int audio);
 
 Output * open_output(
     char * outfile,
-    AVCodecContext*(*make_video)(AVFormatContext *, AVCodecContext *, char*),
-    AVCodecContext*(*make_audio)(AVFormatContext *, AVCodecContext *, char*),
+    AVStream*(*make_video)(AVFormatContext *, AVCodecContext *, char*),
+    AVStream*(*make_audio)(AVFormatContext *, AVCodecContext *, char*),
     InputSource * source,
     int video,
     int audio

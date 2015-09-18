@@ -8,7 +8,7 @@
 
 #include "general.h"
 
-AVCodecContext * add_video_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, char *outfile){
+AVStream * add_video_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, char *outfile){
 
     AVStream * stream = NULL;
 
@@ -32,10 +32,10 @@ AVCodecContext * add_video_output(AVFormatContext * fmt_ctx, AVCodecContext * cc
 
     if (avcodec_open2(vcodec_ctx, vcodec, NULL) < 0) die("Cannot open THEORA encoder\n");
 
-    return vcodec_ctx;
+    return stream;
 }
 
-AVCodecContext * add_audio_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, char *outfile){
+AVStream * add_audio_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, char *outfile){
     AVStream * stream = NULL;
 
     AVCodec * acodec = NULL;
@@ -56,7 +56,19 @@ AVCodecContext * add_audio_output(AVFormatContext * fmt_ctx, AVCodecContext * cc
 
     if (avcodec_open2(acodec_ctx, acodec, NULL) < 0) die("Cannot open FLAC encoder\n");
 
-    return acodec_ctx;
+    return stream;
+}
+
+int process_video_packet(InputSource * source, Output * output, AVPacket * packet){
+    int frame_finished;
+    AVFrame frame;
+
+    avcodec_decode_video2(source->vctx, &frame, &frame_finished, packet);
+    frame.pts = av_rescale_q(packet->pts, source->video_st->time_base, source->vctx->time_base);
+    if (frame_finished){
+        fprintf(stdout, "VFrame finished\n");
+        return 0;
+    }
 }
 
 
@@ -76,6 +88,7 @@ int main(int argc, char ** argv){
     InputSource * source = NULL;
     source = open_source(argv[1], 1, 1);
 
+
     //Creating output
     Output * output;
     output = open_output(
@@ -86,12 +99,14 @@ int main(int argc, char ** argv){
         1,
         1
     );
+
     av_dump_format(output->ctx, 0, outfile, 1);
 
     avformat_write_header(output->ctx, NULL);
 
     struct SwrContext * swr_ctx = NULL;
     swr_ctx = build_audio_swr(source->actx, output->actx);
+
 
     AVPacket packet;
     AVPacket packet_copy;
@@ -130,9 +145,16 @@ int main(int argc, char ** argv){
     daframe->channels = output->actx->channels;
     daframe->sample_rate = output->actx->sample_rate;
 
+    int last_vpts = -1;
+    int last_apts = -1;
+    int ret;
+
     while(av_read_frame(source->ctx, &packet) >= 0){
         fprintf(stdout, "packet.pts = %d\n", packet.pts);
-        av_free_packet(&packet);
+        if (packet.stream_index == source->video){
+            ret = process_video_packet(source, output, &packet);
+            if (ret > 0) av_free_packet(&packet);
+        }
     }
 
     av_write_trailer(output->ctx);
