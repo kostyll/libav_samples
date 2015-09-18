@@ -1,0 +1,49 @@
+DIRAC de/en coder (Loseless video)
+--enable-libschroedinger enable Dirac de/encoding via libschroedinger [no]
+
+VORBIS
+--enable-libvorbis       enable Vorbis en/decoding via libvorbis
+
+THEORA
+--enable-libtheora       enable Theora encoding via libtheora [no]
+
+SPEEX
+--enable-libspeex        enable Speex de/encoding via libspeex [no]
+
+OPUS
+--enable-libopus         enable Opus de/encoding via libopus [no]
+
+
+cd <FFMPEG dir>
+
+./configure \
+--enable-libschroedinger \
+--enable-libtheora \
+--enable-debug \
+--disable-asm \
+--enable-shared \
+--prefix=../target_usr/ 
+
+ffmpeg -i big_buck_bunny_720p_2mb.mp4 -codec:v theora -codec:a flac  out.ogg
+
+Input #0, ogg, from 'out.ogg':=    0KB vq=    0KB sq=    0B f=0/0   
+  Duration: 00:00:13.50, start: 0.000000, bitrate: 2761 kb/s
+    Stream #0:0(und): Video: theora, yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 25 tbr, 25 tbn, 25 tbc
+    Metadata:
+      CREATION_TIME   : 1970-01-01 00:00:00
+      LANGUAGE        : und
+      HANDLER_NAME    : VideoHandler
+      ENCODER         : Lavc56.13.100 libtheora
+      MAJOR_BRAND     : isom
+      MINOR_VERSION   : 512
+      COMPATIBLE_BRANDS: isomiso2avc1mp41
+    Stream #0:1(und): Audio: flac, 48000 Hz, 5.1(side), s32 (24 bit)
+    Metadata:
+      CREATION_TIME   : 1970-01-01 00:00:00
+      LANGUAGE        : und
+      HANDLER_NAME    : SoundHandler
+      ENCODER         : Lavc56.13.100 flac
+      MAJOR_BRAND     : isom
+      MINOR_VERSION   : 512
+      COMPATIBLE_BRANDS: isomiso2avc1mp41
+Switch subtitle stream from #-1 to #-1 vq=   71KB sq=    0B f=0/0

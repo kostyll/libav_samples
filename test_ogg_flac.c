@@ -43,6 +43,7 @@ AVCodecContext * add_audio_output(AVFormatContext * fmt_ctx){
 	if (acodec == NULL) die("Cannot find video encoder FLAC\n");
 
 	stream = avformat_new_stream(fmt_ctx, acodec);
+	acodec_ctx = stream->codec;
 
 	acodec_ctx->sample_fmt = AV_SAMPLE_FMT_S32;
 	acodec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -59,22 +60,25 @@ AVCodecContext * add_audio_output(AVFormatContext * fmt_ctx){
 
 AVFormatContext * open_output_off_flac(char * outfile){
 	AVFormatContext * ctx;
-	AVOutputFormat * fmt;
 
-	AVCodec * vcodec = NULL;
 	AVCodecContext * vcodec_ctx = NULL;
 
-	AVCodec * acodec = NULL;
 	AVCodecContext * acodec_ctx = NULL;
 
 	avformat_alloc_output_context2(&ctx, NULL, NULL, outfile);
 	if (ctx == NULL) die("Cannot allocate output format context\n");
 
-	acodec_ctx = add_audio_output(ctx);
-	acodec = acodec_ctx->codec;
-
 	vcodec_ctx = add_video_output(ctx);
-	vcodec = vcodec_ctx->codec;
+
+	acodec_ctx = add_audio_output(ctx);
+
+	if (!(ctx->flags & AVFMT_NOFILE)) {
+		if (avio_open(&ctx->pb, outfile, AVIO_FLAG_WRITE) < 0)
+			die("Cannot open output file\n");
+	}
+
+	if ((avformat_write_header(ctx, NULL)) < 0)
+		die("Cannot write header\n");
 
 	return ctx;
 }
