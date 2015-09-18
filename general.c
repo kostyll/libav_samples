@@ -62,7 +62,7 @@ int get_audio_stream(AVFormatContext * fmt_ctx) {
     return audio_stream;
 }
 
-static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
+AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
                                   uint64_t channel_layout,
                                   int sample_rate, int nb_samples, int channels)
 {
@@ -85,4 +85,255 @@ static AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
         }
     }
     return frame;
+}
+
+struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * out_ctx){
+    struct SwrContext * swr_ctx = NULL;
+    if ((swr_ctx = swr_alloc()) == NULL)
+        die("Cannot allocate audio swr context\n");
+
+    av_opt_set_int       (swr_ctx, "in_channel_count",   in_ctx->channels,          0);
+    av_opt_set_int       (swr_ctx, "in_sample_rate",     in_ctx->sample_rate,       0);
+    av_opt_set_int       (swr_ctx, "in_ch_layout",       in_ctx->channel_layout,    0);
+    av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",      in_ctx->sample_fmt,        0);
+    av_opt_set_int       (swr_ctx, "out_channel_count",  out_ctx->channels,         0);
+    av_opt_set_int       (swr_ctx, "out_sample_rate",    out_ctx->sample_rate,      0);
+    av_opt_set_int       (swr_ctx, "out_ch_layout",      out_ctx->channel_layout,   0);
+    av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     out_ctx->sample_fmt,       0);
+}
+
+InputSource * open_source(char * url, int video, int audio){
+    AVFormatContext * ctx = NULL;
+    InputSource * source = av_malloc(sizeof(InputSource));
+    if (source == NULL) die("Cannot alloc source\n");
+    memset((void*)source, 0, sizeof(InputSource));
+
+    source->video = -1;
+    source->audio = -1;
+
+    source->url = av_malloc(strlen(url)+1);
+    strcpy(source->url, url);
+
+    source->ctx = open_input_source(source->url);
+    ctx = source->ctx;
+
+    if (video != 0){
+        source->video = get_video_stream(ctx);
+        source->video_st = ctx->streams[source->video];
+        source->vctx = source->video_st->codec;
+        source->vc = source->vctx->codec;
+    }
+    if (audio != 0){
+        source->audio = get_audio_stream(ctx);
+        source->audio_st = ctx->streams[source->audio];
+        source->actx = source->audio_st->codec;
+        source->ac = source->actx->codec;
+    }
+}
+
+
+AVCodecContext * general_make_video(
+    AVFormatContext *ctx,
+    AVCodecContext * cctx,
+    char * outfile
+){
+    AVOutputFormat * fmt = NULL;;
+    AVStream * stream = NULL;
+    AVCodec * codec = NULL;
+    AVCodecContext * codec_ctx = NULL;
+    int vcodec_id;
+
+    fmt = ctx->oformat;
+
+    vcodec_id = av_guess_codec(fmt, NULL, outfile, NULL, AVMEDIA_TYPE_VIDEO);
+    codec = avcodec_find_encoder(vcodec_id);
+    if (codec == NULL) die("Cannot find encoder for video codec\n");
+    stream = avformat_new_stream(ctx, codec);
+    if (stream == NULL) die("Cannot add video steam to output file\n");
+
+    codec_ctx = stream->codec;
+
+    codec_ctx->codec_id = vcodec_id;
+    codec_ctx->codec_type = AVMEDIA_TYPE_VIDEO;
+    codec_ctx->bit_rate = 512*1014;
+    codec_ctx->width = 800;
+    codec_ctx->height = 600;
+    codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+    codec_ctx->time_base = (AVRational){1, 25};
+
+    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open video codec\n");
+
+    return codec_ctx;
+}
+
+
+AVCodecContext * general_make_audio(
+    AVFormatContext *ctx,
+    AVCodecContext *cctx,
+    char * outfile
+){
+    AVOutputFormat * fmt = NULL;
+    AVCodec * codec = NULL;
+    AVCodecContext * codec_ctx = NULL;
+    AVStream * stream = NULL;
+
+    int acodec_id;
+
+    fmt = ctx->oformat;
+
+    acodec_id = av_guess_codec(fmt, NULL, outfile, NULL, AVMEDIA_TYPE_AUDIO);
+
+    codec = avcodec_find_encoder(acodec_id);
+    if (codec == NULL) die ("Cannot find encoder for video codec\n");
+
+    stream = avformat_new_stream(ctx, codec);
+    if (stream == NULL) die("Cannot add audio stream to output file\n");
+
+    codec_ctx = stream->codec;
+
+    codec_ctx->sample_fmt = AV_SAMPLE_FMT_S32;
+    codec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
+    codec_ctx->codec_id = acodec_id;
+    codec_ctx->bit_rate = 64000;
+    codec_ctx->sample_rate = 48000;
+    codec_ctx->channels = 2;
+
+    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open audio encoder\n");
+
+    return codec_ctx;
+}
+
+
+void duplicate_video_context_params(
+    AVCodecContext *out,
+    AVCodecContext *in
+){
+    out->codec_type = in->codec_type;
+    out->bit_rate = in->bit_rate;
+    out->width = in->width;
+    out->height = in->height;
+    out->time_base = in->time_base;
+    out->gop_size = in->gop_size;
+    out->pix_fmt = in->pix_fmt;
+
+    if (out->codec_id == AV_CODEC_ID_MPEG2VIDEO) {
+        /* just for testing, we also add B frames */
+        out->max_b_frames = in->max_b_frames;
+    }
+    if (out->codec_id == AV_CODEC_ID_MPEG1VIDEO) {
+        /* Needed to avoid using macroblocks in which some coeffs overflow.
+         * This does not happen with normal video, it just happens here as
+         * the motion of the chroma plane does not match the luma plane. */
+        out->mb_decision = 2;
+    }
+}
+
+void duplicate_audio_context_params(
+    AVCodecContext *out,
+    AVCodecContext *in
+){
+    out->sample_fmt = in->sample_fmt;
+    out->codec_type = in->codec_type;
+    out->bit_rate = in->bit_rate;
+    out->sample_rate = in->sample_rate;
+    out->channels = in->channels;
+    out->channel_layout = in->channel_layout;
+    out->time_base = (AVRational){1, out->sample_rate};
+}
+
+
+Output * open_output(
+    char * outfile,
+    AVCodecContext*(*make_video)(AVFormatContext *, AVCodecContext *, char *),
+    AVCodecContext*(*make_audio)(AVFormatContext *, AVCodecContext *, char *),
+    InputSource * source,
+    int video,
+    int audio
+){
+    Output * output = av_malloc(sizeof(Output));
+    if (output == NULL) die("Cannot alloc output\n");
+    memset((void*)output, 0, sizeof(Output));
+
+    output->video = -1;
+    output->audio = -1;
+
+    output->url = av_malloc(strlen(outfile)+1);
+    strcpy(output->url, outfile);
+
+    avformat_alloc_output_context2(&output->ctx, NULL, NULL, output->url);
+    if (output->ctx == NULL) die("Cannot allocate output format context\n");
+
+
+    //Preparing output video stream
+    if (video == 1){
+        if (make_video == NULL){
+            //Building codec and it's context
+            if (source == NULL) {
+                //Generating default params
+                output->vctx = general_make_video(output->ctx, NULL, NULL);
+            } else {
+                //Duplicating params
+                AVCodec * codec = NULL;;
+                AVStream * stream = NULL;
+
+                codec = avcodec_find_encoder(source->vctx->codec_id);
+                if (codec == NULL) die("Cannot find encoder for video\n");
+
+                stream = avformat_new_stream(output->ctx, codec);
+                if (stream == NULL) die("Cannot append output video stream\n");
+
+                output->vctx = stream->codec;
+                output->vctx->codec_id = stream->codec->codec_id;
+                duplicate_video_context_params(output->vctx, source->vctx);
+
+                if (avcodec_open2(output->vctx, output->vc, NULL) < 0)
+                    die("Cannot open video encoder\n");
+            }
+
+        } else {
+            output->vctx = make_video(output->ctx, source, output->url);
+        }
+        output->vc = output->vctx->codec;
+        output->video = get_video_stream(output->ctx);
+    }
+
+    //Preparing output audio stream
+    if (audio == 1){
+        if (make_audio == NULL){
+            //Building codec and it's context
+            if (source == NULL) {
+                //Generating with default format params
+                output->actx = general_make_audio(output->ctx, NULL, NULL);
+            } else {
+                //Duplicating params
+                AVCodec * codec = NULL;
+                AVStream * stream = NULL;
+
+                codec = avcodec_find_encoder(source->actx->codec_id);
+                if (codec == NULL) die("Cannot find encoder for audio\n");
+
+                stream = avformat_new_stream(output->ctx, codec);
+                if (stream == NULL) die("Cannot append output audio stream\n");
+
+                output->actx = stream->codec;
+                output->actx->codec_id = stream->codec->codec_id;
+                duplicate_video_context_params(output->actx, source->actx);
+
+                if (avcodec_open2(output->actx, output->ac, NULL) < 0)
+                    die("Cannot open audio encoder\n");
+            }
+        } else {
+            //Making with make_audio helper
+            output->actx = make_audio(output->ctx, source, output->url);
+        }
+        output->ac = output->actx->codec;
+        output->audio = get_audio_stream(output->ctx);
+    }
+
+    if (!(output->ctx->flags & AVFMT_NOFILE)) {
+        if (avio_open(&output->ctx->pb, output->url, AVIO_FLAG_WRITE) < 0)
+            die("Cannot open output file\n");
+    }    
+
+    return output;
 }
