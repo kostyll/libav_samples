@@ -100,6 +100,7 @@ struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * ou
     av_opt_set_int       (swr_ctx, "out_sample_rate",    out_ctx->sample_rate,      0);
     av_opt_set_int       (swr_ctx, "out_ch_layout",      out_ctx->channel_layout,   0);
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     out_ctx->sample_fmt,       0);
+    return swr_ctx;
 }
 
 InputSource * open_source(char * url, int video, int audio){

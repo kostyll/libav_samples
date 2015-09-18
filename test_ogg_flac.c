@@ -140,9 +140,8 @@ int main(int argc, char ** argv){
     av_free(frame);
     av_free(aframe);
     av_free(daframe);
-
-    avformat_close_input(source->ctx);
-    avformat_close_input(output->ctx);
+    avformat_close_input(&source->ctx);
+    avformat_close_input(&output->ctx);
 
     swr_close(swr_ctx);
     swr_free(&swr_ctx);
