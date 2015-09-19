@@ -67,9 +67,39 @@ int process_video_packet(
     int frame_finished;
 
     avcodec_decode_video2(source->vctx, tctx->ivframe, &frame_finished, &tctx->curr_packet);
-    tctx->ivframe->pts = av_rescale_q(tctx->curr_packet.pts, source->video_st->time_base, source->vctx->time_base);
+    tctx->ivframe->pts = av_rescale_q_rnd(
+        tctx->curr_packet.pts,
+        source->video_st->time_base,
+        source->vctx->time_base,
+        AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+    );
     if (frame_finished){
-        fprintf(stdout, "VFrame finished\n");
+        int frame_encoded;
+        tctx->ivframe->pts = av_rescale_q_rnd(
+                tctx->ivframe->pts,
+                source->vctx->time_base,
+                output->vctx->time_base,
+                AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+            );
+        av_init_packet(&tctx->target_packet);
+        tctx->target_packet.data = NULL;
+        tctx->target_packet.size = 0;
+
+        avcodec_encode_video2(output->vctx, &tctx->target_packet, tctx->ivframe, &frame_encoded);
+        if (frame_encoded){
+            tctx->target_packet.stream_index = output->video;
+            tctx->target_packet.pos = -1;
+            tctx->target_packet.pts = av_rescale_q_rnd(
+                    tctx->target_packet.pts,
+                    output->vctx->time_base,
+                    output->video_st->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+                );
+            tctx->target_packet.dts = 0;
+            if (av_interleaved_write_frame(output->ctx, &tctx->target_packet) != 0)
+                die("Error while writing video packet\n");
+        }
+
         return 0;
     }
     return 0;
