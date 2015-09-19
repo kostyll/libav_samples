@@ -53,6 +53,11 @@ set(
     "test_ogg_flac.c"
 )
 
+set(
+    SOURCE_TEST_TRANSCODER
+    "test_transcoder.c"
+)
+
 # add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 # add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
 add_executable(
@@ -94,6 +99,13 @@ add_executable(
     ${SOURCE_TRANSCODE}
 )
 
+add_executable(
+    test_transcoder
+    ${SOURCE_TEST_TRANSCODER}
+    ${SOURCE_GENERAL}
+    ${SOURCE_TRANSCODE}
+)
+
 # target_link_libraries(
 #     simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil
 # )
@@ -110,6 +122,11 @@ target_link_libraries(
 
 target_link_libraries(
     test_ogg_flac
+    -lavformat -lswscale -lavcodec -lavutil -lswresample
+)
+
+target_link_libraries(
+    test_transcoder
     -lavformat -lswscale -lavcodec -lavutil -lswresample
 )
 

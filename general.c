@@ -171,7 +171,10 @@ AVStream * general_make_video(
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
     codec_ctx->time_base = (AVRational){1, 25};
 
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open video codec");
+    AVDictionary* opts = NULL;
+    av_dict_set(&opts, "strict", "experimental", 2);
+
+    if (avcodec_open2(codec_ctx, codec, &opts) < 0) die("Cannot open video codec");
 
     return stream;
 }
@@ -201,14 +204,17 @@ AVStream * general_make_audio(
 
     codec_ctx = stream->codec;
 
-    codec_ctx->sample_fmt = AV_SAMPLE_FMT_S16;
+    codec_ctx->sample_fmt = codec->sample_fmts[0];
     codec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
     codec_ctx->codec_id = acodec_id;
     codec_ctx->bit_rate = 64000;
     codec_ctx->sample_rate = 48000;
     codec_ctx->channels = 2;
 
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open audio encoder");
+    AVDictionary* opts = NULL;
+    av_dict_set(&opts, "strict", "experimental", 2);
+
+    if (avcodec_open2(codec_ctx, codec, &opts) < 0) die("Cannot open audio encoder");
 
     return stream;
 }
@@ -308,6 +314,9 @@ Output * open_output(
         }
         output->vc = output->vctx->codec;
         output->video = get_video_stream(output->ctx);
+        if (output->ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+            output->video_st->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        }
     }
 
     //Preparing output audio stream
@@ -343,6 +352,9 @@ Output * open_output(
         }
         output->ac = output->actx->codec;
         output->audio = get_audio_stream(output->ctx);
+        if (output->ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+            output->audio_st->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        }
     }
 
     if (!(output->ctx->flags & AVFMT_NOFILE)) {
