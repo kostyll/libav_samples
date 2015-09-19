@@ -26,6 +26,25 @@ typedef struct {
 
 } SourceOrDestinatio;
 
+typedef struct {
+
+    struct SwrContext * swr_ctx;
+    struct SwsContext * sws_ctx;
+
+    AVPacket curr_packet;
+    AVPacket target_packet;
+    AVPacket copy_packet;
+
+    AVFrame * ivframe;
+    AVFrame * ovframe;
+    AVFrame * iaframe;
+    AVFrame * oaframe;
+
+    int first_vpts;
+    int first_apts;
+
+} TranscodingContext;
+
 typedef SourceOrDestinatio InputSource;
 typedef SourceOrDestinatio Output;
 
@@ -51,5 +70,7 @@ Output * open_output(
     int video,
     int audio
 );
+
+TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
 
 #endif __GENERAL_H__

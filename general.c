@@ -349,3 +349,58 @@ Output * open_output(
 
     return output;
 }
+
+TranscodingContext * build_transcoding_context(
+    InputSource * source,
+    Output * output
+){
+    TranscodingContext * ctx = NULL;
+    if ((ctx = av_malloc(sizeof(TranscodingContext))) == NULL)
+        die("Cannot allocate TranscodingContext\n");
+
+    struct SwrContext * swr_ctx = NULL;
+    swr_ctx = build_audio_swr(source->actx, output->actx);
+    if (swr_ctx == NULL) die("build_audio_swr returned NULL\n");
+    ctx->swr_ctx = swr_ctx;
+
+    AVFrame *ivframe, *ovframe, *iaframe, *oaframe;
+    ivframe = ovframe = iaframe = oaframe = NULL;
+
+    //Building i/o frames
+    if ((ivframe = av_frame_alloc()) == NULL)
+        die("Cannot allocate input video frame\n");
+    if ((ovframe = av_frame_alloc()) == NULL)
+        die("Cannot allocate output video frame\n");
+    iaframe = alloc_audio_frame(
+        source->actx->sample_fmt,
+        source->actx->channel_layout,
+        source->actx->sample_rate,
+        10000,
+        source->actx->channels
+    );
+    if (iaframe == NULL) die("Cannot allocate input video frame\n");
+    oaframe = alloc_audio_frame(
+        output->actx->sample_fmt,
+        output->actx->channel_layout,
+        output->actx->sample_rate,
+        output->ac->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE ?
+             10000 : output->actx->frame_size,
+        output->actx->channels
+    );
+    if ((oaframe = av_frame_alloc()) == NULL)
+        die("Cannot allocate output audio frame\n");
+    oaframe->nb_samples = output->actx->frame_size;
+    oaframe->format = output->actx->sample_fmt;
+    oaframe->channel_layout = output->actx->channel_layout;
+    oaframe->channels = output->actx->channels;
+    oaframe->sample_rate = output->actx->sample_rate;
+    ctx->ivframe = ivframe;
+    ctx->iaframe = iaframe;
+    ctx->ovframe = ovframe;
+    ctx->oaframe = oaframe;
+
+    ctx->first_vpts = -1;
+    ctx->first_apts = -1;
+
+    return ctx;
+}
