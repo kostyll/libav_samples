@@ -16,7 +16,7 @@ AVStream * add_video_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, ch
     AVCodecContext * vcodec_ctx = NULL;
 
     vcodec = avcodec_find_encoder(AV_CODEC_ID_THEORA);
-    if (vcodec == NULL) die("Cannot find video encoder THEORA\n");
+    if (vcodec == NULL) die("Cannot find video encoder THEORA");
 
     stream = avformat_new_stream(fmt_ctx, vcodec);
 
@@ -30,7 +30,7 @@ AVStream * add_video_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, ch
     vcodec_ctx->time_base = (AVRational){1, 25};
     vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
 
-    if (avcodec_open2(vcodec_ctx, vcodec, NULL) < 0) die("Cannot open THEORA encoder\n");
+    if (avcodec_open2(vcodec_ctx, vcodec, NULL) < 0) die("Cannot open THEORA encoder");
 
     return stream;
 }
@@ -42,7 +42,7 @@ AVStream * add_audio_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, ch
     AVCodecContext * acodec_ctx = NULL;
 
     acodec = avcodec_find_encoder(AV_CODEC_ID_FLAC);
-    if (acodec == NULL) die("Cannot find video encoder FLAC\n");
+    if (acodec == NULL) die("Cannot find video encoder FLAC");
 
     stream = avformat_new_stream(fmt_ctx, acodec);
     acodec_ctx = stream->codec;
@@ -54,7 +54,7 @@ AVStream * add_audio_output(AVFormatContext * fmt_ctx, AVCodecContext * cctx, ch
     acodec_ctx->sample_rate = 48000;
     acodec_ctx->channels = 2;
 
-    if (avcodec_open2(acodec_ctx, acodec, NULL) < 0) die("Cannot open FLAC encoder\n");
+    if (avcodec_open2(acodec_ctx, acodec, NULL) < 0) die("Cannot open FLAC encoder");
 
     return stream;
 }
@@ -93,25 +93,30 @@ int process_video_packet(
                 output->vctx->time_base,
                 AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
             );
-        av_init_packet(&tctx->target_packet);
-        tctx->target_packet.data = NULL;
-        tctx->target_packet.size = 0;
+        av_init_packet(&tctx->video_packet);
+        tctx->video_packet.data = NULL;
+        tctx->video_packet.size = 0;
 
-        avcodec_encode_video2(output->vctx, &tctx->target_packet, tctx->ovframe, &frame_encoded);
+        if (avcodec_encode_video2(
+            output->vctx,
+            &tctx->video_packet,
+            tctx->ovframe,
+            &frame_encoded
+        ) < 0) die("Cannot decode audio packet");
         if (frame_encoded){
-            tctx->target_packet.stream_index = output->video;
-            tctx->target_packet.pos = -1;
-            tctx->target_packet.pts = av_rescale_q_rnd(
-                    tctx->target_packet.pts,
+            tctx->video_packet.stream_index = output->video;
+            tctx->video_packet.pos = -1;
+            tctx->video_packet.pts = av_rescale_q_rnd(
+                    tctx->video_packet.pts,
                     output->vctx->time_base,
                     output->video_st->time_base,
                     AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
                 );
-            tctx->target_packet.dts = 0;
-            if (av_interleaved_write_frame(output->ctx, &tctx->target_packet) != 0)
-                die("Error while writing video packet\n");
+            tctx->video_packet.dts = AV_NOPTS_VALUE;
+            if (av_interleaved_write_frame(output->ctx, &tctx->video_packet) != 0)
+                die("Error while writing video packet");
             av_free_packet(&tctx->curr_packet);
-            av_free_packet(&tctx->target_packet);
+            av_free_packet(&tctx->video_packet);
         }
 
         return 0;
@@ -124,7 +129,105 @@ int process_audio_packet(
     Output * output,
     TranscodingContext * tctx
 ){
-    fprintf(stdout, "processing audio packet\n");
+    int frame_finished;
+    int frame_encoded;
+    int dst_nb_samples;
+
+    av_copy_packet(&tctx->copy_current_packet, &tctx->curr_packet);
+    if (avcodec_decode_audio4(
+        source->actx,
+        tctx->iaframe,
+        &frame_finished,
+        &tctx->copy_current_packet
+    ) < 0) die("Cannot decode audio packet");
+    tctx->iaframe->pts = av_rescale_q_rnd(
+        tctx->copy_current_packet.pts,
+        source->audio_st->time_base,
+        source->actx->time_base,
+        AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+    );
+    if (frame_finished){
+        uint8_t ** convertedData = NULL;
+        if (av_samples_alloc(
+            &convertedData,
+            NULL,
+            source->actx->channels,
+            tctx->oaframe->nb_samples,
+            output->actx->sample_fmt,
+            0) < 0) die("Cannot allocate samples");
+        int outSamples = swr_convert(
+            tctx->swr_ctx,
+            NULL,
+            0,
+            (const uint8_t **)tctx->iaframe->data,
+            tctx->iaframe->nb_samples
+        );
+        if (outSamples < 0 ) die("Cannot convert audio samples");
+
+        for (;;) {
+            outSamples = swr_get_out_samples(tctx->swr_ctx, 0);
+            if (outSamples < output->actx->frame_size) break;
+            outSamples = swr_convert(
+                tctx->swr_ctx,
+                &convertedData,
+                tctx->oaframe->nb_samples,
+                NULL,
+                0
+            );
+            size_t buffer_size = av_samples_get_buffer_size(
+                NULL,
+                output->actx->channels,
+                tctx->oaframe->nb_samples,
+                output->actx->sample_fmt,
+                0
+            );
+            if (buffer_size < 0) die("Invalid buffer size");
+            if (avcodec_fill_audio_frame(
+                tctx->oaframe,
+                output->actx->channels,
+                output->actx->sample_fmt,
+                convertedData,
+                buffer_size,
+                0) < 0) die("Could not fill frame");
+
+            //Encoding
+            av_init_packet(&tctx->audio_packet);
+            tctx->audio_packet.data = NULL;
+            tctx->audio_packet.size = 0;
+
+            tctx->oaframe->pts = tctx->iaframe->pts;
+            tctx->oaframe->pts = av_rescale_q_rnd(
+                tctx->oaframe->pts,
+                source->actx->time_base,
+                output->actx->time_base,
+                AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+            );
+            if (avcodec_encode_audio2(
+                output->actx,
+                &tctx->audio_packet,
+                tctx->oaframe,
+                &frame_encoded) < 0) die("Error encoding audio frame");
+            if (frame_encoded){
+                tctx->audio_packet.stream_index = output->audio;
+                tctx->audio_packet.pos = -1;
+                tctx->audio_packet.pts = av_rescale_q_rnd(
+                    tctx->audio_packet.pts,
+                    output->actx->time_base,
+                    output->audio_st->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
+                );
+                tctx->audio_packet.dts = AV_NOPTS_VALUE;
+
+                if (av_interleaved_write_frame(output->ctx, &tctx->audio_packet) !=0 )
+                    die("Error while writing audio packet");
+                av_free_packet(&tctx->audio_packet);
+                av_free_packet(&tctx->copy_current_packet);
+                av_free_packet(&tctx->curr_packet);
+            }
+
+        }
+        if (convertedData) av_free(&convertedData[0]);
+    }
 }
 
 int main(int argc, char ** argv){
@@ -161,12 +264,11 @@ int main(int argc, char ** argv){
 
     TranscodingContext * trans_ctx = NULL;
     trans_ctx = build_transcoding_context(source, output);
-    if (trans_ctx == NULL) die("Cannot build TranscodingContext\n");
+    if (trans_ctx == NULL) die("Cannot build TranscodingContext");
 
     int ret;
 
     while(av_read_frame(source->ctx, &trans_ctx->curr_packet) >= 0){
-        fprintf(stdout, "packet.pts = %d\n", trans_ctx->curr_packet.pts);
         if (trans_ctx->curr_packet.stream_index == source->video){
             ret = process_video_packet(
                     source,

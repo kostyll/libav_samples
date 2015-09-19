@@ -32,8 +32,9 @@ typedef struct {
     struct SwsContext * sws_ctx;
 
     AVPacket curr_packet;
-    AVPacket target_packet;
-    AVPacket copy_packet;
+    AVPacket video_packet;
+    AVPacket copy_current_packet;
+    AVPacket audio_packet;
 
     AVFrame * ivframe;
     AVFrame * ovframe;

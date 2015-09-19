@@ -90,7 +90,7 @@ AVFrame *alloc_audio_frame(enum AVSampleFormat sample_fmt,
 struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * out_ctx){
     struct SwrContext * swr_ctx = NULL;
     if ((swr_ctx = swr_alloc()) == NULL)
-        die("Cannot allocate audio swr context\n");
+        die("Cannot allocate audio swr context");
 
 
     av_opt_set_int       (swr_ctx, "in_channel_count",   in_ctx->channels,          0);
@@ -101,6 +101,9 @@ struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * ou
     av_opt_set_int       (swr_ctx, "out_sample_rate",    out_ctx->sample_rate,      0);
     av_opt_set_int       (swr_ctx, "out_ch_layout",      out_ctx->channel_layout,   0);
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     out_ctx->sample_fmt,       0);
+
+    /* initialize the resampling context */
+    if (swr_init(swr_ctx) < 0) die("Failed to initialize the resampling context");
     return swr_ctx;
 }
 
@@ -125,7 +128,7 @@ InputSource * open_source(char * url, int video, int audio){
         source->vctx = source->video_st->codec;
         source->vc = avcodec_find_decoder(source->vctx->codec_id);
         if (source->vc == NULL) die("Cannot find video decoder\n");
-        if (avcodec_open2(source->vctx, source->vc, NULL) < 0) die("Cannot open video decoder\n");
+        if (avcodec_open2(source->vctx, source->vc, NULL) < 0) die("Cannot open video decoder");
     }
     if (audio != 0){
         source->audio = get_audio_stream(ctx);
@@ -133,7 +136,7 @@ InputSource * open_source(char * url, int video, int audio){
         source->actx = source->audio_st->codec;
         source->ac = avcodec_find_decoder(source->actx->codec_id);
         if (source->ac == NULL) die("Cannot find audio decoder\n");
-        if (avcodec_open2(source->actx, source->ac, NULL) < 0) die("Cannot open audio decoder\n");
+        if (avcodec_open2(source->actx, source->ac, NULL) < 0) die("Cannot open audio decoder");
     }
     return source;
 }
@@ -154,9 +157,9 @@ AVStream * general_make_video(
 
     vcodec_id = av_guess_codec(fmt, NULL, outfile, NULL, AVMEDIA_TYPE_VIDEO);
     codec = avcodec_find_encoder(vcodec_id);
-    if (codec == NULL) die("Cannot find encoder for video codec\n");
+    if (codec == NULL) die("Cannot find encoder for video codec");
     stream = avformat_new_stream(ctx, codec);
-    if (stream == NULL) die("Cannot add video steam to output file\n");
+    if (stream == NULL) die("Cannot add video steam to output file");
 
     codec_ctx = stream->codec;
 
@@ -168,7 +171,7 @@ AVStream * general_make_video(
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
     codec_ctx->time_base = (AVRational){1, 25};
 
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open video codec\n");
+    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open video codec");
 
     return stream;
 }
@@ -191,10 +194,10 @@ AVStream * general_make_audio(
     acodec_id = av_guess_codec(fmt, NULL, outfile, NULL, AVMEDIA_TYPE_AUDIO);
 
     codec = avcodec_find_encoder(acodec_id);
-    if (codec == NULL) die ("Cannot find encoder for video codec\n");
+    if (codec == NULL) die ("Cannot find encoder for video codec");
 
     stream = avformat_new_stream(ctx, codec);
-    if (stream == NULL) die("Cannot add audio stream to output file\n");
+    if (stream == NULL) die("Cannot add audio stream to output file");
 
     codec_ctx = stream->codec;
 
@@ -205,7 +208,7 @@ AVStream * general_make_audio(
     codec_ctx->sample_rate = 48000;
     codec_ctx->channels = 2;
 
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open audio encoder\n");
+    if (avcodec_open2(codec_ctx, codec, NULL) < 0) die("Cannot open audio encoder");
 
     return stream;
 }
@@ -258,7 +261,7 @@ Output * open_output(
     int audio
 ){
     Output * output = av_malloc(sizeof(Output));
-    if (output == NULL) die("Cannot alloc output\n");
+    if (output == NULL) die("Cannot alloc output");
     memset((void*)output, 0, sizeof(Output));
 
     output->video = -1;
@@ -268,7 +271,7 @@ Output * open_output(
     strcpy(output->url, outfile);
 
     avformat_alloc_output_context2(&output->ctx, NULL, NULL, output->url);
-    if (output->ctx == NULL) die("Cannot allocate output format context\n");
+    if (output->ctx == NULL) die("Cannot allocate output format context");
 
 
     //Preparing output video stream
@@ -285,10 +288,10 @@ Output * open_output(
                 AVStream * stream = NULL;
 
                 codec = avcodec_find_encoder(source->vctx->codec_id);
-                if (codec == NULL) die("Cannot find encoder for video\n");
+                if (codec == NULL) die("Cannot find encoder for video");
 
                 stream = avformat_new_stream(output->ctx, codec);
-                if (stream == NULL) die("Cannot append output video stream\n");
+                if (stream == NULL) die("Cannot append output video stream");
                 output->video_st = stream;
 
                 output->vctx = stream->codec;
@@ -296,7 +299,7 @@ Output * open_output(
                 duplicate_video_context_params(output->vctx, source->vctx);
 
                 if (avcodec_open2(output->vctx, output->vc, NULL) < 0)
-                    die("Cannot open video encoder\n");
+                    die("Cannot open video encoder");
             }
 
         } else {
@@ -321,17 +324,17 @@ Output * open_output(
                 AVStream * stream = NULL;
 
                 codec = avcodec_find_encoder(source->actx->codec_id);
-                if (codec == NULL) die("Cannot find encoder for audio\n");
+                if (codec == NULL) die("Cannot find encoder for audio");
 
                 stream = avformat_new_stream(output->ctx, codec);
-                if (stream == NULL) die("Cannot append output audio stream\n");
+                if (stream == NULL) die("Cannot append output audio stream");
 
                 output->actx = stream->codec;
                 output->actx->codec_id = stream->codec->codec_id;
                 duplicate_video_context_params(output->actx, source->actx);
 
                 if (avcodec_open2(output->actx, output->ac, NULL) < 0)
-                    die("Cannot open audio encoder\n");
+                    die("Cannot open audio encoder");
             }
         } else {
             //Making with make_audio helper
@@ -356,11 +359,11 @@ TranscodingContext * build_transcoding_context(
 ){
     TranscodingContext * ctx = NULL;
     if ((ctx = av_malloc(sizeof(TranscodingContext))) == NULL)
-        die("Cannot allocate TranscodingContext\n");
+        die("Cannot allocate TranscodingContext");
 
     struct SwrContext * swr_ctx = NULL;
     swr_ctx = build_audio_swr(source->actx, output->actx);
-    if (swr_ctx == NULL) die("build_audio_swr returned NULL\n");
+    if (swr_ctx == NULL) die("build_audio_swr returned NULL");
     ctx->swr_ctx = swr_ctx;
 
     struct SwsContext * sws_ctx = NULL;
@@ -376,7 +379,7 @@ TranscodingContext * build_transcoding_context(
         NULL,
         NULL
     );
-    if (sws_ctx == NULL) die("Cannot allocate video scaling context\n");
+    if (sws_ctx == NULL) die("Cannot allocate video scaling context");
     ctx->sws_ctx = sws_ctx;
 
     AVFrame *ivframe, *ovframe, *iaframe, *oaframe;
@@ -384,10 +387,10 @@ TranscodingContext * build_transcoding_context(
 
     //Building i/o frames
     if ((ivframe = av_frame_alloc()) == NULL)
-        die("Cannot allocate input video frame\n");
+        die("Cannot allocate input video frame");
 
     if ((ovframe = av_frame_alloc()) == NULL)
-        die("Cannot allocate output video frame\n");
+        die("Cannot allocate output video frame");
 
     ctx->dest_pict_buffer_size = avpicture_get_size(
         output->vctx->pix_fmt,
@@ -398,7 +401,7 @@ TranscodingContext * build_transcoding_context(
         ctx->dest_pict_buffer_size * sizeof(uint8_t)
     );
     if (ctx->dest_pict_buffer == NULL)
-        die("Cannot allocate buffer for video scaling\n");
+        die("Cannot allocate buffer for video scaling");
 
     avpicture_fill(
         (AVPicture*)ovframe,
@@ -419,7 +422,7 @@ TranscodingContext * build_transcoding_context(
         10000,
         source->actx->channels
     );
-    if (iaframe == NULL) die("Cannot allocate input video frame\n");
+    if (iaframe == NULL) die("Cannot allocate input video frame");
     oaframe = alloc_audio_frame(
         output->actx->sample_fmt,
         output->actx->channel_layout,
@@ -429,7 +432,7 @@ TranscodingContext * build_transcoding_context(
         output->actx->channels
     );
     if ((oaframe = av_frame_alloc()) == NULL)
-        die("Cannot allocate output audio frame\n");
+        die("Cannot allocate output audio frame");
     oaframe->nb_samples = output->actx->frame_size;
     oaframe->format = output->actx->sample_fmt;
     oaframe->channel_layout = output->actx->channel_layout;
