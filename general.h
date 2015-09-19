@@ -56,7 +56,7 @@ Output * open_output(
 
 typedef struct TranscodingContext TranscodingContext;
 
-typedef void* (*TranscodingFunc)(InputSource *, Output *, TranscodingContext *);
+typedef int (*TranscodingFunc)(InputSource *, Output *, TranscodingContext *);
 
 struct TranscodingContext{
 
@@ -79,13 +79,13 @@ struct TranscodingContext{
 
     TranscodingFunc * before_decode_video;
     TranscodingFunc * after_decode_video;
-    TranscodingFunc * before_convert_video;
+    TranscodingFunc * after_convert_video;
     TranscodingFunc * before_encode_video;
     TranscodingFunc * after_encode_video;
 
     TranscodingFunc * before_decode_audio;
     TranscodingFunc * after_decode_audio;
-    TranscodingFunc * before_convert_audio;
+    TranscodingFunc * after_convert_audio;
     TranscodingFunc * before_encode_audio;
     TranscodingFunc * after_encode_audio;
 
