@@ -76,7 +76,6 @@ int process_video_packet(
     if (frame_finished){
         int frame_encoded;
         tctx->ovframe->pts = tctx->ivframe->pts;
-        fprintf(stdout, "Scaling\n");
 
         sws_scale(
             tctx->sws_ctx,
@@ -120,6 +119,13 @@ int process_video_packet(
     return 0;
 }
 
+int process_audio_packet(
+    InputSource * source,
+    Output * output,
+    TranscodingContext * tctx
+){
+    fprintf(stdout, "processing audio packet\n");
+}
 
 int main(int argc, char ** argv){
     if (argc != 3){
@@ -163,10 +169,16 @@ int main(int argc, char ** argv){
         fprintf(stdout, "packet.pts = %d\n", trans_ctx->curr_packet.pts);
         if (trans_ctx->curr_packet.stream_index == source->video){
             ret = process_video_packet(
-                source,
-                output,
-                trans_ctx
-            );
+                    source,
+                    output,
+                    trans_ctx
+                );
+        } else if (trans_ctx->curr_packet.stream_index == source->audio){
+            ret = process_audio_packet(
+                    source,
+                    output,
+                    trans_ctx
+                );
         }
     }
 
