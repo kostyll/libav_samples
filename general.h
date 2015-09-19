@@ -26,6 +26,7 @@ typedef struct {
 
 } SourceOrDestinatio;
 
+
 typedef struct {
 
     struct SwrContext * swr_ctx;
@@ -44,6 +45,18 @@ typedef struct {
     int dest_pict_buffer_size;
     uint8_t * dest_pict_buffer;
     void * internal_ptr;
+
+    void * before_decode_video;
+    void * after_decode_video;
+    void * before_convert_video;
+    void * before_encode_video;
+    void * after_encode_video;
+
+    void * before_decode_audio;
+    void * after_decode_audio;
+    void * before_convert_audio;
+    void * before_encode_audio;
+    void * after_encode_audio;
 
     int first_vpts;
     int first_apts;
@@ -77,5 +90,7 @@ Output * open_output(
 );
 
 TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
+
+typedef void* (*TranscodingFunc)(InputSource *, Output *, TranscodingContext *);
 
 #endif __GENERAL_H__
