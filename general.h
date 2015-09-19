@@ -40,6 +40,10 @@ typedef struct {
     AVFrame * iaframe;
     AVFrame * oaframe;
 
+    int dest_pict_buffer_size;
+    uint8_t * dest_pict_buffer;
+    void * internal_ptr;
+
     int first_vpts;
     int first_apts;
 

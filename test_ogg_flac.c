@@ -75,7 +75,20 @@ int process_video_packet(
     );
     if (frame_finished){
         int frame_encoded;
-        tctx->ivframe->pts = av_rescale_q_rnd(
+        tctx->ovframe->pts = tctx->ivframe->pts;
+        fprintf(stdout, "Scaling\n");
+
+        sws_scale(
+            tctx->sws_ctx,
+            (uint8_t const * const *)tctx->ivframe->data,
+            tctx->ivframe->linesize,
+            0,
+            source->vctx->height,
+            tctx->ovframe->data,
+            tctx->ovframe->linesize
+        );
+
+        tctx->ovframe->pts = av_rescale_q_rnd(
                 tctx->ivframe->pts,
                 source->vctx->time_base,
                 output->vctx->time_base,
@@ -85,7 +98,7 @@ int process_video_packet(
         tctx->target_packet.data = NULL;
         tctx->target_packet.size = 0;
 
-        avcodec_encode_video2(output->vctx, &tctx->target_packet, tctx->ivframe, &frame_encoded);
+        avcodec_encode_video2(output->vctx, &tctx->target_packet, tctx->ovframe, &frame_encoded);
         if (frame_encoded){
             tctx->target_packet.stream_index = output->video;
             tctx->target_packet.pos = -1;
@@ -98,6 +111,8 @@ int process_video_packet(
             tctx->target_packet.dts = 0;
             if (av_interleaved_write_frame(output->ctx, &tctx->target_packet) != 0)
                 die("Error while writing video packet\n");
+            av_free_packet(&tctx->curr_packet);
+            av_free_packet(&tctx->target_packet);
         }
 
         return 0;
@@ -152,7 +167,6 @@ int main(int argc, char ** argv){
                 output,
                 trans_ctx
             );
-            if (ret > 0) av_free_packet(&trans_ctx->curr_packet);
         }
     }
 

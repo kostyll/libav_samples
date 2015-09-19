@@ -363,14 +363,55 @@ TranscodingContext * build_transcoding_context(
     if (swr_ctx == NULL) die("build_audio_swr returned NULL\n");
     ctx->swr_ctx = swr_ctx;
 
+    struct SwsContext * sws_ctx = NULL;
+    sws_ctx = sws_getContext(
+        source->vctx->width,
+        source->vctx->height,
+        source->vctx->pix_fmt,
+        output->vctx->width,
+        output->vctx->height,
+        output->vctx->pix_fmt,
+        SWS_BICUBIC,
+        NULL,
+        NULL,
+        NULL
+    );
+    if (sws_ctx == NULL) die("Cannot allocate video scaling context\n");
+    ctx->sws_ctx = sws_ctx;
+
     AVFrame *ivframe, *ovframe, *iaframe, *oaframe;
     ivframe = ovframe = iaframe = oaframe = NULL;
 
     //Building i/o frames
     if ((ivframe = av_frame_alloc()) == NULL)
         die("Cannot allocate input video frame\n");
+
     if ((ovframe = av_frame_alloc()) == NULL)
         die("Cannot allocate output video frame\n");
+
+    ctx->dest_pict_buffer_size = avpicture_get_size(
+        output->vctx->pix_fmt,
+        output->vctx->width,
+        output->vctx->height
+    );
+    ctx->dest_pict_buffer = (uint8_t*)av_malloc(
+        ctx->dest_pict_buffer_size * sizeof(uint8_t)
+    );
+    if (ctx->dest_pict_buffer == NULL)
+        die("Cannot allocate buffer for video scaling\n");
+
+    avpicture_fill(
+        (AVPicture*)ovframe,
+        ctx->dest_pict_buffer,
+        output->vctx->pix_fmt,
+        output->vctx->width,
+        output->vctx->height
+    );
+
+    ovframe->format = output->vctx->pix_fmt;
+    ovframe->height = output->vctx->height;
+    ovframe->width = output->vctx->width;
+
     iaframe = alloc_audio_frame(
         source->actx->sample_fmt,
         source->actx->channel_layout,
@@ -401,6 +442,8 @@ TranscodingContext * build_transcoding_context(
 
     ctx->first_vpts = -1;
     ctx->first_apts = -1;
+
+    ctx->internal_ptr = NULL;
 
     return ctx;
 }
