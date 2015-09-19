@@ -27,42 +27,6 @@ typedef struct {
 } SourceOrDestinatio;
 
 
-typedef struct {
-
-    struct SwrContext * swr_ctx;
-    struct SwsContext * sws_ctx;
-
-    AVPacket curr_packet;
-    AVPacket video_packet;
-    AVPacket copy_current_packet;
-    AVPacket audio_packet;
-
-    AVFrame * ivframe;
-    AVFrame * ovframe;
-    AVFrame * iaframe;
-    AVFrame * oaframe;
-
-    int dest_pict_buffer_size;
-    uint8_t * dest_pict_buffer;
-    void * internal_ptr;
-
-    void * before_decode_video;
-    void * after_decode_video;
-    void * before_convert_video;
-    void * before_encode_video;
-    void * after_encode_video;
-
-    void * before_decode_audio;
-    void * after_decode_audio;
-    void * before_convert_audio;
-    void * before_encode_audio;
-    void * after_encode_audio;
-
-    int first_vpts;
-    int first_apts;
-
-} TranscodingContext;
-
 typedef SourceOrDestinatio InputSource;
 typedef SourceOrDestinatio Output;
 
@@ -89,8 +53,47 @@ Output * open_output(
     int audio
 );
 
-TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
+
+typedef struct TranscodingContext TranscodingContext;
 
 typedef void* (*TranscodingFunc)(InputSource *, Output *, TranscodingContext *);
+
+struct TranscodingContext{
+
+    struct SwrContext * swr_ctx;
+    struct SwsContext * sws_ctx;
+
+    AVPacket curr_packet;
+    AVPacket video_packet;
+    AVPacket copy_current_packet;
+    AVPacket audio_packet;
+
+    AVFrame * ivframe;
+    AVFrame * ovframe;
+    AVFrame * iaframe;
+    AVFrame * oaframe;
+
+    int dest_pict_buffer_size;
+    uint8_t * dest_pict_buffer;
+    void * internal_ptr;
+
+    TranscodingFunc * before_decode_video;
+    TranscodingFunc * after_decode_video;
+    TranscodingFunc * before_convert_video;
+    TranscodingFunc * before_encode_video;
+    TranscodingFunc * after_encode_video;
+
+    TranscodingFunc * before_decode_audio;
+    TranscodingFunc * after_decode_audio;
+    TranscodingFunc * before_convert_audio;
+    TranscodingFunc * before_encode_audio;
+    TranscodingFunc * after_encode_audio;
+
+    int first_vpts;
+    int first_apts;
+
+};
+
+TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
 
 #endif __GENERAL_H__
