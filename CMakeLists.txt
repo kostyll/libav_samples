@@ -24,6 +24,8 @@ set(SOURCE_VIDEO_CONVERT "test_video_convert.c")
 
 set(SOURCE_GENERAL "general.c")
 
+set(SOURCE_TRANSCODE "transcode.c")
+
 set(SOURCE_DECODE_ENCODE "de.c")
 
 set(
@@ -80,8 +82,17 @@ add_executable(
 
 # add_executable(output-example ${SOURCE_OUTPUT_EXAMPLE})
 
-add_executable(test_video_convert ${SOURCE_VIDEO_CONVERT} ${SOURCE_GENERAL})
-add_executable(test_ogg_flac ${SOURCE_LOSELESS_OGG_FLAC} ${SOURCE_GENERAL})
+add_executable(
+    test_video_convert
+    ${SOURCE_VIDEO_CONVERT}
+    ${SOURCE_GENERAL}
+)
+add_executable(
+    test_ogg_flac
+    ${SOURCE_LOSELESS_OGG_FLAC}
+    ${SOURCE_GENERAL}
+    ${SOURCE_TRANSCODE}
+)
 
 # target_link_libraries(
 #     simple_ffmpeg_player -lSDL -lm -ldl -lrt -lpthread -lz -lavformat -lswscale -lavcodec -lavutil

@@ -201,7 +201,7 @@ AVStream * general_make_audio(
 
     codec_ctx = stream->codec;
 
-    codec_ctx->sample_fmt = AV_SAMPLE_FMT_S32;
+    codec_ctx->sample_fmt = AV_SAMPLE_FMT_S16;
     codec_ctx->codec_type = AVMEDIA_TYPE_AUDIO;
     codec_ctx->codec_id = acodec_id;
     codec_ctx->bit_rate = 64000;
