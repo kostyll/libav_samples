@@ -448,5 +448,17 @@ TranscodingContext * build_transcoding_context(
 
     ctx->internal_ptr = NULL;
 
+    ctx->before_decode_video = NULL;
+    ctx->after_decode_video = NULL;
+    ctx->before_convert_video = NULL;
+    ctx->before_encode_video = NULL;
+    ctx->after_encode_video = NULL;
+
+    ctx->before_decode_audio = NULL;
+    ctx->after_decode_audio = NULL;
+    ctx->before_convert_audio = NULL;
+    ctx->before_encode_audio = NULL;
+    ctx->after_encode_audio = NULL;
+
     return ctx;
 }
