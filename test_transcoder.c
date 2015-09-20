@@ -11,16 +11,14 @@
 
 int main(int argc, char ** argv){
 	if (argc != 3) die("not enought arguments");
-	char *outfile = argv[2];
-	char *infile = argv[1];
 
 	av_register_all();
 	avformat_network_init();
 
-	InputSource * source = open_source(infile, 1, 1);
-	Output * output = open_output(outfile, NULL, NULL, NULL, 1, 1);
+	InputSource * source = open_source(argv[1], 1, 1);
+	Output * output = open_output(argv[2], NULL, NULL, NULL, 1, 1);
 
-	av_dump_format(output->ctx, 0, outfile, 1);
+	av_dump_format(output->ctx, 0, argv[2], 1);
 
 	avformat_write_header(output->ctx, NULL);
 
