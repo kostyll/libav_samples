@@ -7,6 +7,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w  -ggdb -O0 ")
 
 include_directories(
     /usr/include/SDL
+    /usr/include/python2.7
     target_usr/include
 )
 
@@ -221,8 +222,38 @@ add_custom_target(
     ./test_video_convert http://ger1.peers.tv/streaming/5kanal/16/tvrec/playlist.m3u8 test.avi 
 )
 
-
 add_custom_target(
     runvr
     vlc test.avi
+)
+
+set(
+    SOURCE_SWIG_INTERFACE
+    "simple_ffmpeg"
+)
+
+add_custom_target(
+    python_generate_swig
+    swig -python ${SOURCE_SWIG_INTERFACE}.i
+)
+
+add_library(
+    _simple_ffmpeg SHARED
+    ${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_GENERAL}
+)
+
+target_link_libraries(
+    _simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
+)
+
+set_target_properties(_simple_ffmpeg PROPERTIES PREFIX "")
+
+add_custom_target(
+    python_swig
+)
+
+add_dependencies(
+    python_swig
+    python_generate_swig
+    _simple_ffmpeg
 )
