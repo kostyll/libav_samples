@@ -474,3 +474,44 @@ TranscodingContext * build_transcoding_context(
 
     return ctx;
 }
+
+
+//Closing HANDLERS
+
+int close_source(InputSource * source){
+    return 0;
+}
+
+int close_output(Output * output){
+    return 0;
+}
+
+int close_transcoding_context(TranscodingContext * tctx){
+    return 0;
+}
+
+//INITIALIZATION FFMPEG HANDLERS
+
+void sff_register_all(void){
+    av_register_all();
+}
+
+int sff_network_init(void){
+    return avformat_network_init();
+}
+
+//SOME OTHER UTILS
+
+void sff_dump_format(void * source_output, char* filename){
+    av_dump_format((InputSource*)source_output, 0, filename, 1);
+}
+
+//FILE FUNCTIONS
+
+int sff_write_header(Output * output){
+    return avformat_write_header(output->ctx, NULL);
+}
+
+int sff_write_trailer(Output * output){
+    return av_write_trailer(output->ctx);
+}

@@ -97,3 +97,28 @@ struct TranscodingContext{
 TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
 
 #endif __GENERAL_H__
+
+//CLOSING HANDLERS
+
+int close_source(InputSource *);
+
+int close_output(Output *);
+
+int close_transcoding_context(TranscodingContext *);
+
+
+//INITIALIZATION FFMPEG HANDLERS
+
+void sff_register_all(void);
+
+int  sff_network_init(void);
+
+//SOME OTHER UTILS
+
+void sff_dump_format(void *, char*);
+
+//FILE FUNCTIONS
+
+int sff_write_header(Output *);
+
+int sff_write_trailer(Output *);

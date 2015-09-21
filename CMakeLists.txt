@@ -232,6 +232,10 @@ set(
     "simple_ffmpeg"
 )
 
+execute_process(
+    COMMAND touch ${SOURCE_SWIG_INTERFACE}_wrap.c
+)
+
 add_custom_target(
     python_generate_swig
     swig -python ${SOURCE_SWIG_INTERFACE}.i
