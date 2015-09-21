@@ -12,6 +12,7 @@
 *.so
 *.dylib
 *.dll
+*.pyc
 
 # Fortran module files
 *.mod
@@ -53,3 +54,5 @@ CMakeFiles
 Debug/
 FFmpeg
 target_usr/
+ffmpeg-*
+libav_samples*
