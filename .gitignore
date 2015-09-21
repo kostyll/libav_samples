@@ -39,6 +39,7 @@
 *.pcm
 *.m4a
 *.mp2
+*.mov
 
 #...
 .tags
