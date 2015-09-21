@@ -62,25 +62,25 @@ set(
 
 # add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 # add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
-add_executable(
-    some_audio_decode_convert_encode_sample
-    ${SOURCE_SOME_DECODE_CONVERT_ENCODE_AUDIO_SAMPLE}
-)
+# add_executable(
+#     some_audio_decode_convert_encode_sample
+#     ${SOURCE_SOME_DECODE_CONVERT_ENCODE_AUDIO_SAMPLE}
+# )
 
-add_executable(
-    print_pts
-    ${SOURCE_PRINT_PACKETS_PTS}
-)
+# add_executable(
+#     print_pts
+#     ${SOURCE_PRINT_PACKETS_PTS}
+# )
 
-add_executable(
-    remuxing
-    ${SOURCE_REMUXING}
-)
+# add_executable(
+#     remuxing
+#     ${SOURCE_REMUXING}
+# )
 
-add_executable(
-    transcoding
-    ${SOURCE_TRANSCODING}
-)
+# add_executable(
+#     transcoding
+#     ${SOURCE_TRANSCODING}
+# )
 
 # add_executable(
 #     de
@@ -132,21 +132,21 @@ target_link_libraries(
     -lavformat -lswscale -lavcodec -lavutil -lswresample
 )
 
-target_link_libraries(
-    some_audio_decode_convert_encode_sample -lavformat -lswscale -lavcodec -lavutil -lswresample
-)
+# target_link_libraries(
+#     some_audio_decode_convert_encode_sample -lavformat -lswscale -lavcodec -lavutil -lswresample
+# )
 
-target_link_libraries(
-    print_pts -lavformat -lavcodec
-)
+# target_link_libraries(
+#     print_pts -lavformat -lavcodec
+# )
 
-target_link_libraries(
-    remuxing -lavformat -lavcodec  -lavutil
-)
+# target_link_libraries(
+#     remuxing -lavformat -lavcodec  -lavutil
+# )
 
-target_link_libraries(
-    transcoding -lavformat -lavcodec -lavutil -lavfilter 
-)
+# target_link_libraries(
+#     transcoding -lavformat -lavcodec -lavutil -lavfilter 
+# )
 
 # target_link_libraries(
 #     de  -lavformat -lswscale -lavcodec -lavutil -lswresample
@@ -158,7 +158,7 @@ target_link_libraries(
 
 #  MAKING ffmpeg-tutorial0
 
-set(src_dir "ffmpeg-tutorial0/")
+# set(src_dir "ffmpeg-tutorial0/")
 
 set(list_sources 
     # "tutorial01" 
@@ -186,12 +186,12 @@ endforeach(source list_sources)
 set(src_dir "FFmpegTutorial/")
 
 set(list_sources 
-    "sample01_scaning"
-    "sample02_demuxing"
-    "sample03_remuxing"
-    "sample04_decoding"
-    "sample05_filtering"
-    "sample06_encoding"
+    # "sample01_scaning"
+    # "sample02_demuxing"
+    # "sample03_remuxing"
+    # "sample04_decoding"
+    # "sample05_filtering"
+    # "sample06_encoding"
 )
 
 foreach(source ${list_sources})
