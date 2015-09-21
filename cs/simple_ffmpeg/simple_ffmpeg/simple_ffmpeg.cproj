@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C8B94162-141C-4442-B2F5-A31EBB06851C}</ProjectGuid>
+    <Compiler>
+      <Compiler ctype="GccCompiler" />
+    </Compiler>
+    <Language>C</Language>
+    <Target>Bin</Target>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug</OutputPath>
+    <OutputName>simple_ffmpeg</OutputName>
+    <CompileTarget>SharedLibrary</CompileTarget>
+    <DefineSymbols>DEBUG MONODEVELOP</DefineSymbols>
+    <SourceDirectory>.</SourceDirectory>
+    <Libs>
+      <Libs>
+        <Lib>/media/work/libav_samples/target_usr/lib/libavformat.so</Lib>
+        <Lib>/media/work/libav_samples/target_usr/lib/libavcodec.so</Lib>
+        <Lib>/media/work/libav_samples/target_usr/lib/libavutil.so</Lib>
+        <Lib>/media/work/libav_samples/target_usr/lib/libswscale.so</Lib>
+      </Libs>
+    </Libs>
+    <ExtraLinkerArguments>-lavformat -lavcodec -lavutil</ExtraLinkerArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release</OutputPath>
+    <OutputName>simple_ffmpeg</OutputName>
+    <CompileTarget>SharedLibrary</CompileTarget>
+    <OptimizationLevel>3</OptimizationLevel>
+    <DefineSymbols>MONODEVELOP</DefineSymbols>
+    <SourceDirectory>.</SourceDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\simple_ffmpeg_wrap.c">
+      <Link>simple_ffmpeg_wrap.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\general.c">
+      <Link>general.c</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\general.h">
+      <Link>general.h</Link>
+    </None>
+  </ItemGroup>
+</Project>

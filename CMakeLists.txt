@@ -278,7 +278,7 @@ add_custom_target(
 
 add_custom_target(
     csharp_generate_swig
-    swig -csharp -outdir ${CS_OUTDIR} ${SOURCE_SWIG_INTERFACE}.i
+    swig -csharp -c++ -outdir ${CS_OUTDIR} ${SOURCE_SWIG_INTERFACE}.i
 )
 
 add_dependencies(

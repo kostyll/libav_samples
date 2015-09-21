@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{AFB4F36E-E36D-47FC-A2A4-AC6F4B660474}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>test_simple_ffmpeg</RootNamespace>
+    <AssemblyName>test_simple_ffmpeg</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\simple_ffmpeg.cs">
+      <Link>simple_ffmpeg.cs</Link>
+    </Compile>
+    <Compile Include="..\..\simple_ffmpegPINVOKE.cs">
+      <Link>simple_ffmpegPINVOKE.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SourceOrDestinatio.cs">
+      <Link>SourceOrDestinatio.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVCodec.cs">
+      <Link>SWIGTYPE_p_AVCodec.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVCodecContext.cs">
+      <Link>SWIGTYPE_p_AVCodecContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVFormatContext.cs">
+      <Link>SWIGTYPE_p_AVFormatContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVFrame.cs">
+      <Link>SWIGTYPE_p_AVFrame.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVPacket.cs">
+      <Link>SWIGTYPE_p_AVPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_AVStream.cs">
+      <Link>SWIGTYPE_p_AVStream.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_f_p_AVFormatContext_p_AVCodecContext_p_char__p_AVStream.cs">
+      <Link>SWIGTYPE_p_f_p_AVFormatContext_p_AVCodecContext_p_char__p_AVStream.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_p_f_p_SourceOrDestinatio_p_SourceOrDestinatio_p_struct_TranscodingContext__int.cs">
+      <Link>SWIGTYPE_p_p_f_p_SourceOrDestinatio_p_SourceOrDestinatio_p_struct_TranscodingContext__int.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_p_f_p_SourceOrDestinatio_p_SourceOrDestinatio_p_TranscodingContext__int.cs">
+      <Link>SWIGTYPE_p_p_f_p_SourceOrDestinatio_p_SourceOrDestinatio_p_TranscodingContext__int.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_SwrContext.cs">
+      <Link>SWIGTYPE_p_SwrContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_SwsContext.cs">
+      <Link>SWIGTYPE_p_SwsContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_TranscodingContext.cs">
+      <Link>SWIGTYPE_p_TranscodingContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_uint8_t.cs">
+      <Link>SWIGTYPE_p_uint8_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_uint64_t.cs">
+      <Link>SWIGTYPE_p_uint64_t.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SWIGTYPE_p_void.cs">
+      <Link>SWIGTYPE_p_void.cs</Link>
+    </Compile>
+    <Compile Include="..\..\TranscodingContext.cs">
+      <Link>TranscodingContext.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
