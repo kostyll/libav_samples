@@ -10,6 +10,7 @@ include_directories(
     /usr/include/python2.7
     target_usr/include
     ./
+    ./include
 )
 
 link_directories(
@@ -60,6 +61,16 @@ set(
     "test_transcoder.c"
 )
 
+set(
+    SRC_DIR
+    "src"
+)
+
+set(
+    TEST_DIR
+    "test"
+)
+
 # add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 # add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
 # add_executable(
@@ -91,21 +102,21 @@ set(
 
 add_executable(
     test_video_convert
-    ${SOURCE_VIDEO_CONVERT}
-    ${SOURCE_GENERAL}
+    ${TEST_DIR}/${SOURCE_VIDEO_CONVERT}
+    ${SRC_DIR}/${SOURCE_GENERAL}
 )
 add_executable(
     test_ogg_flac
-    ${SOURCE_LOSELESS_OGG_FLAC}
-    ${SOURCE_GENERAL}
-    ${SOURCE_TRANSCODE}
+    ${TEST_DIR}/${SOURCE_LOSELESS_OGG_FLAC}
+    ${SRC_DIR}/${SOURCE_GENERAL}
+    ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
 add_executable(
     test_transcoder
-    ${SOURCE_TEST_TRANSCODER}
-    ${SOURCE_GENERAL}
-    ${SOURCE_TRANSCODE}
+    ${TEST_DIR}/${SOURCE_TEST_TRANSCODER}
+    ${SRC_DIR}/${SOURCE_GENERAL}
+    ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
 # target_link_libraries(
@@ -130,6 +141,18 @@ target_link_libraries(
 target_link_libraries(
     test_transcoder
     -lavformat -lswscale -lavcodec -lavutil -lswresample
+)
+
+set_target_properties(test_video_convert PROPERTIES 
+  RUNTIME_OUTPUT_DIRECTORY "${TEST_DIR}"
+)
+
+set_target_properties(test_ogg_flac PROPERTIES 
+  RUNTIME_OUTPUT_DIRECTORY "${TEST_DIR}"
+)
+
+set_target_properties(test_transcoder PROPERTIES 
+  RUNTIME_OUTPUT_DIRECTORY "${TEST_DIR}"
 )
 
 # target_link_libraries(
@@ -268,7 +291,7 @@ add_custom_target(
 
 add_library(
     _simple_ffmpeg SHARED
-    ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_GENERAL} ${SOURCE_TRANSCODE}
+    ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
 target_link_libraries(
