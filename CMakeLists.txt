@@ -232,22 +232,46 @@ set(
     "simple_ffmpeg"
 )
 
+set(
+    CS_OUTDIR
+    "cs"
+)
+
+set(
+    PY_OUTDIR
+    "py"
+)
+
+
 execute_process(
-    COMMAND touch ${SOURCE_SWIG_INTERFACE}_wrap.c
+    COMMAND mkdir -p ${PY_OUTDIR}
+    COMMAND touch ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c
+)
+
+
+execute_process(
+    COMMAND mkdir -p ${CS_OUTDIR} 
+    COMMAND touch ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c
+)
+
+
+add_custom_target(
+    python_make_outdir
+    mkdir -p ${PY_OUTDIR}
 )
 
 add_custom_target(
     python_generate_swig
-    swig -python ${SOURCE_SWIG_INTERFACE}.i
+    swig -python -o ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c -outdir ${PY_OUTDIR} ${SOURCE_SWIG_INTERFACE}.i
 )
 
 add_library(
-    _simple_ffmpeg SHARED
-    ${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_GENERAL}
+    ${PY_OUTDIR}/_simple_ffmpeg SHARED
+    ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_GENERAL} ${SOURCE_TRANSCODE}
 )
 
 target_link_libraries(
-    _simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
+    ${PY_OUTDIR}/_simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
 )
 
 set_target_properties(_simple_ffmpeg PROPERTIES PREFIX "")
@@ -258,14 +282,12 @@ add_custom_target(
 
 add_dependencies(
     python_swig
+    python_make_outdir
     python_generate_swig
     _simple_ffmpeg
 )
 
-set(
-    CS_OUTDIR
-    "cs"
-)
+
 
 add_custom_target(
     csharp_swig
@@ -278,7 +300,7 @@ add_custom_target(
 
 add_custom_target(
     csharp_generate_swig
-    swig -csharp -c++ -outdir ${CS_OUTDIR} ${SOURCE_SWIG_INTERFACE}.i
+    swig -csharp -c -outdir ${CS_OUTDIR} -o ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_SWIG_INTERFACE}.i
 )
 
 add_dependencies(
