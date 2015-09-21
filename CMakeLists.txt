@@ -328,11 +328,28 @@ add_custom_target(
 
 add_custom_target(
     csharp_generate_swig
-    swig -csharp -c -outdir ${CS_OUTDIR} -o ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_SWIG_INTERFACE}.i
+    swig -csharp  -outdir ${CS_OUTDIR} -o ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_SWIG_INTERFACE}.i
+)
+
+add_library(
+    simple_ffmpeg SHARED
+    ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
+
+)
+
+target_link_libraries(
+    simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
+)
+
+set_target_properties(simple_ffmpeg PROPERTIES PREFIX "")
+
+set_target_properties(simple_ffmpeg PROPERTIES 
+  LIBRARY_OUTPUT_DIRECTORY "${CS_OUTDIR}"
 )
 
 add_dependencies(
     csharp_swig
     csharp_make_out_dir
     csharp_generate_swig
+    simple_ffmpeg
 )

@@ -2959,7 +2959,7 @@ static swig_module_info swig_module = {swig_types, 16, 0, 0, 0, 0};
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
- #include "general.h"	
+ #include "include/general.h"	
 
 
 SWIGINTERN swig_type_info*
