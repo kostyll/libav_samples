@@ -9,6 +9,7 @@ include_directories(
     /usr/include/SDL
     /usr/include/python2.7
     target_usr/include
+    ./
 )
 
 link_directories(
@@ -266,12 +267,16 @@ add_custom_target(
 )
 
 add_library(
-    ${PY_OUTDIR}/_simple_ffmpeg SHARED
+    _simple_ffmpeg SHARED
     ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SOURCE_GENERAL} ${SOURCE_TRANSCODE}
 )
 
 target_link_libraries(
-    ${PY_OUTDIR}/_simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
+    _simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
+)
+
+set_target_properties(_simple_ffmpeg PROPERTIES 
+  LIBRARY_OUTPUT_DIRECTORY "${PY_OUTDIR}"
 )
 
 set_target_properties(_simple_ffmpeg PROPERTIES PREFIX "")
