@@ -261,3 +261,28 @@ add_dependencies(
     python_generate_swig
     _simple_ffmpeg
 )
+
+set(
+    CS_OUTDIR
+    "cs"
+)
+
+add_custom_target(
+    csharp_swig
+)
+
+add_custom_target(
+    csharp_make_out_dir
+    mkdir -p ${CS_OUTDIR}
+)
+
+add_custom_target(
+    csharp_generate_swig
+    swig -csharp -outdir ${CS_OUTDIR} ${SOURCE_SWIG_INTERFACE}.i
+)
+
+add_dependencies(
+    csharp_swig
+    csharp_make_out_dir
+    csharp_generate_swig
+)
