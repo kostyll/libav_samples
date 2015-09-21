@@ -1,12 +1,21 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="test_simple_ffmpeg/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../simple_ffmpegPINVOKE.cs">
     <Files>
-      <File FileName="test_simple_ffmpeg/Program.cs" Line="52" Column="52" />
-      <File FileName="../simple_ffmpeg.cs" Line="130" Column="130" />
-      <File FileName="../SourceOrDestinatio.cs" Line="1" Column="1" />
-      <File FileName="../SWIGTYPE_p_void.cs" Line="36" Column="36" />
+      <File FileName="test_simple_ffmpeg/Program.cs" Line="1" Column="1" />
+      <File FileName="../simple_ffmpegPINVOKE.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="simple_ffmpeg" expanded="True" />
+          <Node name="test_simple_ffmpeg" expanded="True" selected="True">
+            <Node name="References" expanded="True" />
+            <Node name="Properties" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

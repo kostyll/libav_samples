@@ -9,6 +9,8 @@
     </Compiler>
     <Language>C</Language>
     <Target>Bin</Target>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,15 +19,19 @@
     <CompileTarget>SharedLibrary</CompileTarget>
     <DefineSymbols>DEBUG MONODEVELOP</DefineSymbols>
     <SourceDirectory>.</SourceDirectory>
+    <Includes>
+      <Includes>
+        <Include>../../../../../target_usr/include</Include>
+      </Includes>
+    </Includes>
     <Libs>
       <Libs>
-        <Lib>/media/work/libav_samples/target_usr/lib/libavformat.so</Lib>
-        <Lib>/media/work/libav_samples/target_usr/lib/libavcodec.so</Lib>
-        <Lib>/media/work/libav_samples/target_usr/lib/libavutil.so</Lib>
-        <Lib>/media/work/libav_samples/target_usr/lib/libswscale.so</Lib>
+        <Lib>../../../../../target_usr/lib/libavformat.so</Lib>
+        <Lib>../../../../../target_usr/lib/libavutil.so</Lib>
+        <Lib>../../../../../target_usr/lib/libavcodec.so</Lib>
       </Libs>
     </Libs>
-    <ExtraLinkerArguments>-lavformat -lavcodec -lavutil</ExtraLinkerArguments>
+    <WarningLevel>All</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release</OutputPath>

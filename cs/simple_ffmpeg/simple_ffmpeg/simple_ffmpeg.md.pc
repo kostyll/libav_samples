@@ -1,5 +1,5 @@
 Name: simple_ffmpeg
 Description: 
 Version: 0.1
-Libs: -L"/media/work/libav_samples/cs/simple_ffmpeg/simple_ffmpeg/bin/Debug" -lsimple_ffmpeg
-Cflags: -I"/media/work/libav_samples"
+Libs: -L"/home/andrew/workspace/libav_samples/cs/simple_ffmpeg/simple_ffmpeg/bin/Debug" -lsimple_ffmpeg
+Cflags: -I"/home/andrew/workspace/libav_samples"
