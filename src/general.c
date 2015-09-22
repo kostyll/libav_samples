@@ -95,11 +95,11 @@ struct SwrContext * build_audio_swr(AVCodecContext * in_ctx, AVCodecContext * ou
 
     av_opt_set_int       (swr_ctx, "in_channel_count",   in_ctx->channels,          0);
     av_opt_set_int       (swr_ctx, "in_sample_rate",     in_ctx->sample_rate,       0);
-    av_opt_set_int       (swr_ctx, "in_ch_layout",       in_ctx->channel_layout,    0);
+    av_opt_set_int       (swr_ctx, "in_channel_layout",  in_ctx->channel_layout,    0);
     av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt",      in_ctx->sample_fmt,        0);
     av_opt_set_int       (swr_ctx, "out_channel_count",  out_ctx->channels,         0);
     av_opt_set_int       (swr_ctx, "out_sample_rate",    out_ctx->sample_rate,      0);
-    av_opt_set_int       (swr_ctx, "out_ch_layout",      out_ctx->channel_layout,   0);
+    av_opt_set_int       (swr_ctx, "out_channel_layout", out_ctx->channel_layout,   0);
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt",     out_ctx->sample_fmt,       0);
 
     /* initialize the resampling context */
@@ -431,7 +431,7 @@ TranscodingContext * build_transcoding_context(
         source->actx->sample_fmt,
         source->actx->channel_layout,
         source->actx->sample_rate,
-        10000,
+        20000,
         source->actx->channels
     );
     if (iaframe == NULL) die("Cannot allocate input video frame");
@@ -440,7 +440,7 @@ TranscodingContext * build_transcoding_context(
         output->actx->channel_layout,
         output->actx->sample_rate,
         output->ac->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE ?
-             10000 : output->actx->frame_size,
+             20000 : output->actx->frame_size,
         output->actx->channels
     );
     if ((oaframe = av_frame_alloc()) == NULL)

@@ -127,7 +127,7 @@ int process_video_packet(
     return 0;
 }
 
-int process_audio_packet(
+void process_audio_packet(
     InputSource * source,
     Output * output,
     TranscodingContext * tctx
@@ -135,6 +135,7 @@ int process_audio_packet(
     int frame_finished;
     int frame_encoded;
     int ret;
+    uint8_t ** convertedData;
 
     av_copy_packet(&tctx->copy_current_packet, &tctx->curr_packet);
 
@@ -168,11 +169,11 @@ int process_audio_packet(
         AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
     );
     if (frame_finished){
-        uint8_t ** convertedData = NULL;
+        convertedData = NULL;
         if (av_samples_alloc(
             &convertedData,
             NULL,
-            source->actx->channels,
+            output->actx->channels,
             tctx->oaframe->nb_samples,
             output->actx->sample_fmt,
             0) < 0) die("Cannot allocate samples");
