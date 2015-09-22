@@ -7,13 +7,18 @@ def main():
 
     simple_ffmpeg.sff_register_all()
 
+    print "opening input"
     source = simple_ffmpeg.open_source(infile, 1, 1)
-    simple_ffmpeg.sff_dump_format(source, infile)
+    print "opened"
+    print "dumping format"
+    # simple_ffmpeg.sff_dump_format(source, infile)
 
-    output = simple_ffmpeg.open_output(outfile, None, None, None, 1, 1)
+    print "making output"
+    output = simple_ffmpeg.open_output(outfile, 0, 0, 0, 1, 1)
+    print "done"
     simple_ffmpeg.sff_dump_format(output, outfile)
 
-    tctx = simple_ffmpeg.build_transcoding_context(source, output)
+    #tctx = simple_ffmpeg.build_transcoding_context(source, output)
 
     simple_ffmpeg.sff_write_header(output)
 
