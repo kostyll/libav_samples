@@ -146,6 +146,10 @@ open_source = _simple_ffmpeg.open_source
 def open_output(*args):
   return _simple_ffmpeg.open_output(*args)
 open_output = _simple_ffmpeg.open_output
+
+def sff_open_output(*args):
+  return _simple_ffmpeg.sff_open_output(*args)
+sff_open_output = _simple_ffmpeg.sff_open_output
 class TranscodingContext(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, TranscodingContext, name, value)
@@ -272,6 +276,18 @@ sff_write_header = _simple_ffmpeg.sff_write_header
 def sff_write_trailer(*args):
   return _simple_ffmpeg.sff_write_trailer(*args)
 sff_write_trailer = _simple_ffmpeg.sff_write_trailer
+
+def process_video_packet(*args):
+  return _simple_ffmpeg.process_video_packet(*args)
+process_video_packet = _simple_ffmpeg.process_video_packet
+
+def process_audio_packet(*args):
+  return _simple_ffmpeg.process_audio_packet(*args)
+process_audio_packet = _simple_ffmpeg.process_audio_packet
+
+def transcode(*args):
+  return _simple_ffmpeg.transcode(*args)
+transcode = _simple_ffmpeg.transcode
 # This file is compatible with both classic and new-style classes.
 
 

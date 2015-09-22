@@ -2959,7 +2959,8 @@ static swig_module_info swig_module = {swig_types, 16, 0, 0, 0, 0};
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
- #include "include/general.h"	
+ #include "general.h"
+ #include "transcode.h"
 
 
 SWIGINTERN swig_type_info*
@@ -4096,6 +4097,72 @@ SWIGINTERN PyObject *_wrap_open_output(PyObject *SWIGUNUSEDPARM(self), PyObject 
   } 
   arg6 = (int)(val6);
   result = (Output *)open_output(arg1,arg2,arg3,arg4,arg5,arg6);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_sff_open_output(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  void *arg2 = (void *) 0 ;
+  void *arg3 = (void *) 0 ;
+  InputSource *arg4 = (InputSource *) 0 ;
+  int arg5 ;
+  int arg6 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  int res3 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  int val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  Output *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:sff_open_output",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "sff_open_output" "', argument " "1"" of type '" "char *""'");
+  }
+  arg1 = (char *)(buf1);
+  res2 = SWIG_ConvertPtr(obj1,SWIG_as_voidptrptr(&arg2), 0, 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "sff_open_output" "', argument " "2"" of type '" "void *""'"); 
+  }
+  res3 = SWIG_ConvertPtr(obj2,SWIG_as_voidptrptr(&arg3), 0, 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "sff_open_output" "', argument " "3"" of type '" "void *""'"); 
+  }
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "sff_open_output" "', argument " "4"" of type '" "InputSource *""'"); 
+  }
+  arg4 = (InputSource *)(argp4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "sff_open_output" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = (int)(val5);
+  ecode6 = SWIG_AsVal_int(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "sff_open_output" "', argument " "6"" of type '" "int""'");
+  } 
+  arg6 = (int)(val6);
+  result = (Output *)sff_open_output(arg1,arg2,arg3,arg4,arg5,arg6);
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
   return resultobj;
@@ -5665,6 +5732,126 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_process_video_packet(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:process_video_packet",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "process_video_packet" "', argument " "1"" of type '" "InputSource *""'"); 
+  }
+  arg1 = (InputSource *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "process_video_packet" "', argument " "2"" of type '" "Output *""'"); 
+  }
+  arg2 = (Output *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_TranscodingContext, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "process_video_packet" "', argument " "3"" of type '" "TranscodingContext *""'"); 
+  }
+  arg3 = (TranscodingContext *)(argp3);
+  result = (int)process_video_packet(arg1,arg2,arg3);
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_process_audio_packet(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:process_audio_packet",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "process_audio_packet" "', argument " "1"" of type '" "InputSource *""'"); 
+  }
+  arg1 = (InputSource *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "process_audio_packet" "', argument " "2"" of type '" "Output *""'"); 
+  }
+  arg2 = (Output *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_TranscodingContext, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "process_audio_packet" "', argument " "3"" of type '" "TranscodingContext *""'"); 
+  }
+  arg3 = (TranscodingContext *)(argp3);
+  result = (int)process_audio_packet(arg1,arg2,arg3);
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_transcode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:transcode",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "transcode" "', argument " "1"" of type '" "InputSource *""'"); 
+  }
+  arg1 = (InputSource *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_SourceOrDestinatio, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "transcode" "', argument " "2"" of type '" "Output *""'"); 
+  }
+  arg2 = (Output *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_TranscodingContext, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "transcode" "', argument " "3"" of type '" "TranscodingContext *""'"); 
+  }
+  arg3 = (TranscodingContext *)(argp3);
+  result = (int)transcode(arg1,arg2,arg3);
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"die", _wrap_die, METH_VARARGS, NULL},
@@ -5698,6 +5885,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"build_audio_swr", _wrap_build_audio_swr, METH_VARARGS, NULL},
 	 { (char *)"open_source", _wrap_open_source, METH_VARARGS, NULL},
 	 { (char *)"open_output", _wrap_open_output, METH_VARARGS, NULL},
+	 { (char *)"sff_open_output", _wrap_sff_open_output, METH_VARARGS, NULL},
 	 { (char *)"TranscodingContext_swr_ctx_set", _wrap_TranscodingContext_swr_ctx_set, METH_VARARGS, NULL},
 	 { (char *)"TranscodingContext_swr_ctx_get", _wrap_TranscodingContext_swr_ctx_get, METH_VARARGS, NULL},
 	 { (char *)"TranscodingContext_sws_ctx_set", _wrap_TranscodingContext_sws_ctx_set, METH_VARARGS, NULL},
@@ -5760,6 +5948,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"sff_dump_format", _wrap_sff_dump_format, METH_VARARGS, NULL},
 	 { (char *)"sff_write_header", _wrap_sff_write_header, METH_VARARGS, NULL},
 	 { (char *)"sff_write_trailer", _wrap_sff_write_trailer, METH_VARARGS, NULL},
+	 { (char *)"process_video_packet", _wrap_process_video_packet, METH_VARARGS, NULL},
+	 { (char *)"process_audio_packet", _wrap_process_audio_packet, METH_VARARGS, NULL},
+	 { (char *)"transcode", _wrap_transcode, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

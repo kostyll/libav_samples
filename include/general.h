@@ -53,6 +53,15 @@ Output * open_output(
     int audio
 );
 
+Output * sff_open_output(
+    char * outfile,
+    void * make_video,
+    void * make_audio,
+    InputSource * source,
+    int video,
+    int audio
+);
+
 
 typedef struct TranscodingContext TranscodingContext;
 

@@ -141,6 +141,24 @@ InputSource * open_source(char * url, int video, int audio){
     return source;
 }
 
+Output * sff_open_output(
+    char * outfile,
+    void * make_video,
+    void * make_audio,
+    InputSource * source,
+    int video,
+    int audio
+){
+    return open_output(
+        outfile,
+        make_video,
+        make_audio,
+        source,
+        video,
+        audio
+    );
+}
+
 
 AVStream * general_make_video(
     AVFormatContext *ctx,
