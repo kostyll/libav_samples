@@ -278,6 +278,9 @@ class simple_ffmpegPINVOKE {
   [DllImport("simple_ffmpeg", EntryPoint="CSharp_open_output")]
   public static extern IntPtr open_output(string jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, int jarg5, int jarg6);
 
+  [DllImport("simple_ffmpeg", EntryPoint="CSharp_sff_open_output")]
+  public static extern IntPtr sff_open_output(string jarg1, HandleRef jarg2, HandleRef jarg3, HandleRef jarg4, int jarg5, int jarg6);
+
   [DllImport("simple_ffmpeg", EntryPoint="CSharp_TranscodingContext_swr_ctx_set")]
   public static extern void TranscodingContext_swr_ctx_set(HandleRef jarg1, HandleRef jarg2);
 
@@ -460,4 +463,13 @@ class simple_ffmpegPINVOKE {
 
   [DllImport("simple_ffmpeg", EntryPoint="CSharp_sff_write_trailer")]
   public static extern int sff_write_trailer(HandleRef jarg1);
+
+  [DllImport("simple_ffmpeg", EntryPoint="CSharp_process_video_packet")]
+  public static extern int process_video_packet(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3);
+
+  [DllImport("simple_ffmpeg", EntryPoint="CSharp_process_audio_packet")]
+  public static extern int process_audio_packet(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3);
+
+  [DllImport("simple_ffmpeg", EntryPoint="CSharp_transcode")]
+  public static extern int transcode(HandleRef jarg1, HandleRef jarg2, HandleRef jarg3);
 }

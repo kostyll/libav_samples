@@ -256,7 +256,8 @@ SWIGEXPORT void SWIGSTDCALL SWIGRegisterStringCallback_simple_ffmpeg(SWIG_CSharp
 #define SWIG_contract_assert(nullreturn, expr, msg) if (!(expr)) {SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentOutOfRangeException, msg, ""); return nullreturn; } else
 
 
- #include "general.h"	
+ #include "general.h"
+ #include "transcode.h"
 
 
 #ifdef __cplusplus
@@ -626,6 +627,28 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_open_output(char * jarg1, void * jarg2, voi
   arg5 = (int)jarg5; 
   arg6 = (int)jarg6; 
   result = (Output *)open_output(arg1,arg2,arg3,arg4,arg5,arg6);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_sff_open_output(char * jarg1, void * jarg2, void * jarg3, void * jarg4, int jarg5, int jarg6) {
+  void * jresult ;
+  char *arg1 = (char *) 0 ;
+  void *arg2 = (void *) 0 ;
+  void *arg3 = (void *) 0 ;
+  InputSource *arg4 = (InputSource *) 0 ;
+  int arg5 ;
+  int arg6 ;
+  Output *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (void *)jarg2; 
+  arg3 = (void *)jarg3; 
+  arg4 = (InputSource *)jarg4; 
+  arg5 = (int)jarg5; 
+  arg6 = (int)jarg6; 
+  result = (Output *)sff_open_output(arg1,arg2,arg3,arg4,arg5,arg6);
   jresult = (void *)result; 
   return jresult;
 }
@@ -1333,6 +1356,54 @@ SWIGEXPORT int SWIGSTDCALL CSharp_sff_write_trailer(void * jarg1) {
   
   arg1 = (Output *)jarg1; 
   result = (int)sff_write_trailer(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_process_video_packet(void * jarg1, void * jarg2, void * jarg3) {
+  int jresult ;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  int result;
+  
+  arg1 = (InputSource *)jarg1; 
+  arg2 = (Output *)jarg2; 
+  arg3 = (TranscodingContext *)jarg3; 
+  result = (int)process_video_packet(arg1,arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_process_audio_packet(void * jarg1, void * jarg2, void * jarg3) {
+  int jresult ;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  int result;
+  
+  arg1 = (InputSource *)jarg1; 
+  arg2 = (Output *)jarg2; 
+  arg3 = (TranscodingContext *)jarg3; 
+  result = (int)process_audio_packet(arg1,arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_transcode(void * jarg1, void * jarg2, void * jarg3) {
+  int jresult ;
+  InputSource *arg1 = (InputSource *) 0 ;
+  Output *arg2 = (Output *) 0 ;
+  TranscodingContext *arg3 = (TranscodingContext *) 0 ;
+  int result;
+  
+  arg1 = (InputSource *)jarg1; 
+  arg2 = (Output *)jarg2; 
+  arg3 = (TranscodingContext *)jarg3; 
+  result = (int)transcode(arg1,arg2,arg3);
   jresult = result; 
   return jresult;
 }

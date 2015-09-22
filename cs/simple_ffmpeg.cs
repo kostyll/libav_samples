@@ -56,6 +56,12 @@ public class simple_ffmpeg {
     return ret;
   }
 
+  public static SourceOrDestinatio sff_open_output(string outfile, SWIGTYPE_p_void make_video, SWIGTYPE_p_void make_audio, SourceOrDestinatio source, int video, int audio) {
+    IntPtr cPtr = simple_ffmpegPINVOKE.sff_open_output(outfile, SWIGTYPE_p_void.getCPtr(make_video), SWIGTYPE_p_void.getCPtr(make_audio), SourceOrDestinatio.getCPtr(source), video, audio);
+    SourceOrDestinatio ret = (cPtr == IntPtr.Zero) ? null : new SourceOrDestinatio(cPtr, false);
+    return ret;
+  }
+
   public static SWIGTYPE_p_TranscodingContext build_transcoding_context(SourceOrDestinatio source, SourceOrDestinatio output) {
     IntPtr cPtr = simple_ffmpegPINVOKE.build_transcoding_context(SourceOrDestinatio.getCPtr(source), SourceOrDestinatio.getCPtr(output));
     SWIGTYPE_p_TranscodingContext ret = (cPtr == IntPtr.Zero) ? null : new SWIGTYPE_p_TranscodingContext(cPtr, false);
@@ -97,6 +103,21 @@ public class simple_ffmpeg {
 
   public static int sff_write_trailer(SourceOrDestinatio arg0) {
     int ret = simple_ffmpegPINVOKE.sff_write_trailer(SourceOrDestinatio.getCPtr(arg0));
+    return ret;
+  }
+
+  public static int process_video_packet(SourceOrDestinatio source, SourceOrDestinatio output, SWIGTYPE_p_TranscodingContext tctx) {
+    int ret = simple_ffmpegPINVOKE.process_video_packet(SourceOrDestinatio.getCPtr(source), SourceOrDestinatio.getCPtr(output), SWIGTYPE_p_TranscodingContext.getCPtr(tctx));
+    return ret;
+  }
+
+  public static int process_audio_packet(SourceOrDestinatio source, SourceOrDestinatio output, SWIGTYPE_p_TranscodingContext tctx) {
+    int ret = simple_ffmpegPINVOKE.process_audio_packet(SourceOrDestinatio.getCPtr(source), SourceOrDestinatio.getCPtr(output), SWIGTYPE_p_TranscodingContext.getCPtr(tctx));
+    return ret;
+  }
+
+  public static int transcode(SourceOrDestinatio source, SourceOrDestinatio output, SWIGTYPE_p_TranscodingContext tctx) {
+    int ret = simple_ffmpegPINVOKE.transcode(SourceOrDestinatio.getCPtr(source), SourceOrDestinatio.getCPtr(output), SWIGTYPE_p_TranscodingContext.getCPtr(tctx));
     return ret;
   }
 

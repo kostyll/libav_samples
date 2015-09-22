@@ -6,6 +6,7 @@ def main():
     outfile = sys.argv[2]
 
     simple_ffmpeg.sff_register_all()
+    simple_ffmpeg.sff_network_init()
 
     source = simple_ffmpeg.open_source(infile, 1, 1)
     # simple_ffmpeg.sff_dump_format(source, infile)
@@ -15,9 +16,9 @@ def main():
 
     tctx = simple_ffmpeg.build_transcoding_context(source, output)
 
-    simple_ffmpeg.transcode(source, output, tctx)
-
     simple_ffmpeg.sff_write_header(output)
+
+    simple_ffmpeg.transcode(source, output, tctx)
 
     simple_ffmpeg.sff_write_trailer(output)
 
