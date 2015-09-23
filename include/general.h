@@ -86,17 +86,17 @@ struct TranscodingContext{
     uint8_t * dest_pict_buffer;
     void * internal_ptr;
 
-    TranscodingFunc * before_decode_video;
-    TranscodingFunc * after_decode_video;
-    TranscodingFunc * after_convert_video;
-    TranscodingFunc * before_encode_video;
-    TranscodingFunc * after_encode_video;
+    TranscodingFunc before_decode_video;
+    TranscodingFunc after_decode_video;
+    TranscodingFunc after_convert_video;
+    TranscodingFunc before_encode_video;
+    TranscodingFunc after_encode_video;
 
-    TranscodingFunc * before_decode_audio;
-    TranscodingFunc * after_decode_audio;
-    TranscodingFunc * after_convert_audio;
-    TranscodingFunc * before_encode_audio;
-    TranscodingFunc * after_encode_audio;
+    TranscodingFunc before_decode_audio;
+    TranscodingFunc after_decode_audio;
+    TranscodingFunc after_convert_audio;
+    TranscodingFunc before_encode_audio;
+    TranscodingFunc after_encode_audio;
 
     int first_vpts;
     int first_apts;
