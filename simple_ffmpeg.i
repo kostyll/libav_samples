@@ -3,6 +3,7 @@
 %{
  #include "general.h"
  #include "transcode.h"
+ #include "callbacks_table.h"
 %}
 
 %include "include/general.h"

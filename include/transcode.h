@@ -19,6 +19,16 @@ int set_process_handler(
     ProcessHandler func_ptr
 );
 
+int native_process_handler(
+    TranscodingFunc * func,
+    TranscodingContext * tctx,
+    InputSource * source,
+    Output * output,
+    AVPacket *pkt1_for_free,
+    AVPacket *pkt2_for_free,
+    AVPacket *pkt3_for_free
+);
+
 int process_video_packet(
     InputSource * source,
     Output * output,
