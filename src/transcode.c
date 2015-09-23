@@ -1,6 +1,7 @@
 #include "general.h"
+#include "transcode.h"
 
-int process_handler(
+int native_process_handler(
     TranscodingFunc * func,
     TranscodingContext * tctx,
     InputSource * source,
@@ -21,6 +22,16 @@ int process_handler(
     return ret;
 };
 
+ProcessHandler current_process_handler = &native_process_handler;
+
+int set_process_handler(
+    ProcessHandler func_ptr
+){
+    if (func_ptr == NULL) current_process_handler = &native_process_handler;
+        else current_process_handler = func_ptr;
+}
+
+
 int process_video_packet(
     InputSource * source,
     Output * output,
@@ -29,7 +40,7 @@ int process_video_packet(
     int frame_finished;
     int ret;
 
-    ret = process_handler(
+    ret = (*current_process_handler)(
         tctx->before_decode_video, tctx,
         source, output,
         &tctx->copy_current_packet, NULL, NULL);
@@ -46,7 +57,7 @@ int process_video_packet(
     );
     if (frame_finished){
         int frame_encoded;
-        ret = process_handler(
+        ret = (*current_process_handler)(
             tctx->after_decode_video, tctx,
             source, output,
             &tctx->copy_current_packet, NULL, NULL);
@@ -66,7 +77,7 @@ int process_video_packet(
             tctx->ovframe->linesize
         );
 
-        ret = process_handler(
+        ret = (*current_process_handler)(
             tctx->after_convert_video, tctx,
             source, output,
             &tctx->copy_current_packet, NULL, NULL);
@@ -84,7 +95,7 @@ int process_video_packet(
         tctx->video_packet.data = NULL;
         tctx->video_packet.size = 0;
 
-        ret = process_handler(
+        ret = (*current_process_handler)(
             tctx->before_encode_video, tctx,
             source, output,
             &tctx->copy_current_packet, &tctx->video_packet, NULL);
@@ -99,7 +110,7 @@ int process_video_packet(
             &frame_encoded
         ) < 0) die("Cannot decode audio packet");
         if (frame_encoded){
-            ret = process_handler(
+            ret = (*current_process_handler)(
                 tctx->after_encode_video, tctx,
                 source, output,
                 &tctx->copy_current_packet, &tctx->video_packet, NULL);
@@ -139,7 +150,7 @@ void process_audio_packet(
 
     av_copy_packet(&tctx->copy_current_packet, &tctx->curr_packet);
 
-    ret = process_handler(
+    ret = (*current_process_handler)(
         tctx->before_decode_audio, tctx,
         source, output,
         &tctx->copy_current_packet, &tctx->curr_packet, NULL);
@@ -154,7 +165,7 @@ void process_audio_packet(
         &tctx->copy_current_packet
     ) < 0) die("Cannot decode audio packet");
 
-    ret = process_handler(
+    ret = (*current_process_handler)(
         tctx->after_decode_audio, tctx,
         source, output,
         &tctx->copy_current_packet, &tctx->curr_packet, NULL);
@@ -212,7 +223,7 @@ void process_audio_packet(
                 buffer_size,
                 0) < 0) die("Could not fill frame");
 
-            ret = process_handler(
+            ret = (*current_process_handler)(
                 tctx->after_convert_audio, tctx,
                 source, output,
                 &tctx->copy_current_packet, &tctx->curr_packet, NULL);
@@ -232,7 +243,7 @@ void process_audio_packet(
                 output->actx->time_base,
                 AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
             );
-            ret = process_handler(
+            ret = (*current_process_handler)(
                 tctx->before_encode_audio, tctx,
                 source, output,
                 &tctx->copy_current_packet, &tctx->curr_packet, &tctx->audio_packet);
@@ -246,7 +257,7 @@ void process_audio_packet(
                 tctx->oaframe,
                 &frame_encoded) < 0) die("Error encoding audio frame");
             if (frame_encoded){
-                ret = process_handler(
+                ret = (*current_process_handler)(
                     tctx->after_encode_audio, tctx,
                     source, output,
                     &tctx->copy_current_packet, &tctx->curr_packet, &tctx->audio_packet);
