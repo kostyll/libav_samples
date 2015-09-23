@@ -27,14 +27,12 @@ TranscodingFuncItem * allocate_transcoding_func_item(){
 	return result;
 }
 
-TranscodingFuncItem * register_callback(
-	PyObject * py_func,
-	TranscodingFunc func_ptr
-){
+TranscodingFuncItem * register_callback(PyObject * py_func, TranscodingFunc func_ptr){
+	TranscodingFuncItem *item;
+	item = NULL;
 	if (transcoding_count >= TRANSCODING_TABLE_SIZE)
 		die("Transcoding table is full");
-	struct TranscodingFuncItem * item = NULL;
-	item = get_callback(func_ptr);
+	item = get_callback((TranscodingFunc)func_ptr);
 	if (item == NULL) {
 		item = allocate_transcoding_func_item();
 		item->py_func = py_func;
@@ -42,13 +40,14 @@ TranscodingFuncItem * register_callback(
 		table[transcoding_count++] = item;
 	}
 	return item;
-};
+}
 
 TranscodingFuncItem * get_callback(TranscodingFunc func_ptr){
 	int i;
-	for (i = 0; i< TRANSCODING_TABLE_SIZE; i++)
+	for (i = 0; i< TRANSCODING_TABLE_SIZE; i++){
 		if (table[i]->func_ptr == func_ptr)
 			return table[i];
+	}
 	return NULL;
 }
 

@@ -47,4 +47,4 @@ int transcode(
 	TranscodingContext * tctx
 );
 
-#endif __TRANSCODE__H_
+#endif

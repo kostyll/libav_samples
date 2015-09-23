@@ -105,8 +105,6 @@ struct TranscodingContext{
 
 TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
 
-#endif __GENERAL_H__
-
 //CLOSING HANDLERS
 
 int close_source(InputSource *);
@@ -131,3 +129,5 @@ void sff_dump_format(void *, char*);
 int sff_write_header(Output *);
 
 int sff_write_trailer(Output *);
+
+#endif
