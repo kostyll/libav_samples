@@ -11,7 +11,6 @@ include_directories(
     target_usr/include
     ./
     ./include
-    ./external_src
 )
 
 link_directories(
@@ -72,10 +71,6 @@ set(
     "test"
 )
 
-set(
-    SOURCE_HASHMAP
-    "external_src/strmap.c"
-)
 
 # add_executable(simple_ffmpeg_player ${SOURCE_SIMPLE_FFMPEG_PLAYER})
 # add_executable(simple_ffmpeg_video_audio_player ${SOURCE_SIMPLE_FFMPEG_VA_PLAYER})
