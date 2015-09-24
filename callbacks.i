@@ -13,6 +13,11 @@
 #endif
 
 #ifdef SWIGCSHARP
+
+	%{
+		#include "csharp_callbacks.h"
+	%}
+
 	registerHandler(void *callbackFunc, TranscodingFunc * func_ptr);
 #endif
 
