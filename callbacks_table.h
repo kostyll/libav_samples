@@ -9,9 +9,10 @@
 #include "transcode.h"
 
 #define TRANSCODING_TABLE_SIZE 100
+typedef CallBackFuncObject;
 
 typedef struct TranscodingFuncItem{
-	PyObject * py_func;
+	CallBackFuncObject * func_obj;
 	TranscodingFunc func_ptr;
 } TranscodingFuncItem;
 
@@ -34,7 +35,7 @@ struct TranscodingFuncItem * get_callback(TranscodingFunc func_ptr){
 	return NULL;
 }
 
-struct TranscodingFuncItem * register_callback(PyObject * py_func, void * func_ptr){
+struct TranscodingFuncItem * register_callback(CallBackFuncObject * func_obj, void * func_ptr){
 	struct TranscodingFuncItem *item;
 	item = NULL;
 	if (transcoding_count >= TRANSCODING_TABLE_SIZE)
@@ -42,10 +43,10 @@ struct TranscodingFuncItem * register_callback(PyObject * py_func, void * func_p
 	item = get_callback(func_ptr);
 	if (item == NULL) {
 		item = allocate_transcoding_func_item();
-		item->py_func = py_func;
+		item->func_obj = func_obj;
 		item->func_ptr = func_ptr;
 		table[transcoding_count++] = item;
-	} else item->py_func = py_func;
+	} else item->func_obj = func_obj;
 	return item;
 }
 

@@ -1,5 +1,17 @@
 %module simple_ffmpeg
 
+#ifdef SWIGPYTHON
+
+	typedef PyObject CallBackFuncObject;
+
+#endif
+
+#ifdef SWIGPYTHON
+
+	typedef void CallBackFuncObject;
+
+#endif
+
 %{
  #include "general.h"
  #include "transcode.h"

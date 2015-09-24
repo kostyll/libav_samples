@@ -61,18 +61,18 @@ int python_process_handler(
     AVPacket *pkt3_for_free
 ){
 
-    PyObject * py_func = NULL;
+    PyObject * func_obj = NULL;
     TranscodingFuncItem * item = NULL;
     int ret = 1;
     item = get_callback(func_ptr);
     if (item == NULL)
         return 1;
     else {
-        py_func = item->py_func;
-        if (py_func == NULL) return 1;
+        func_obj = item->func_obj;
+        if (func_obj == NULL) return 1;
 
         ret = processCallback(
-            py_func,
+            func_obj,
             tctx,
             source,
             output
