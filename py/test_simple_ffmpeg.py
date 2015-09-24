@@ -1,6 +1,10 @@
 import sys
 import simple_ffmpeg
 
+def callback(tctx, source, output):
+    print source.url, output.url
+    return 1
+
 def main():
     infile = sys.argv[1]
     outfile = sys.argv[2]
@@ -15,6 +19,8 @@ def main():
     # simple_ffmpeg.sff_dump_format(output, outfile)
 
     tctx = simple_ffmpeg.build_transcoding_context(source, output)
+
+    simple_ffmpeg.registerHandler(callback, tctx.before_decode_video)
 
     simple_ffmpeg.sff_write_header(output)
 
