@@ -1,8 +1,18 @@
 #include "general.h"
 #include "transcode.h"
 
+void clean_up_packets(
+    AVPacket *pkt1_for_free,
+    AVPacket *pkt2_for_free,
+    AVPacket *pkt3_for_free
+){
+    if (pkt1_for_free != NULL) av_free_packet(pkt1_for_free);
+    if (pkt2_for_free != NULL) av_free_packet(pkt2_for_free);
+    if (pkt3_for_free != NULL) av_free_packet(pkt3_for_free);
+}
+
 int native_process_handler(
-    TranscodingFunc * func,
+    TranscodingFunc func,
     TranscodingContext * tctx,
     InputSource * source,
     Output * output,
@@ -15,9 +25,11 @@ int native_process_handler(
         return 1;
     ret = (*func)(source, output, tctx);
     if (ret <= 0){
-        if (pkt1_for_free != NULL) av_free_packet(pkt1_for_free);
-        if (pkt2_for_free != NULL) av_free_packet(pkt2_for_free);
-        if (pkt3_for_free != NULL) av_free_packet(pkt3_for_free);
+        clean_up_packets(
+            pkt1_for_free,
+            pkt2_for_free,
+            pkt3_for_free
+        );
     }
     return ret;
 };
@@ -29,6 +41,7 @@ int set_process_handler(
 ){
     if (func_ptr == NULL) current_process_handler = &native_process_handler;
         else current_process_handler = func_ptr;
+    return 0;
 }
 
 

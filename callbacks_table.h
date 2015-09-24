@@ -45,7 +45,7 @@ struct TranscodingFuncItem * register_callback(PyObject * py_func, void * func_p
 		item->py_func = py_func;
 		item->func_ptr = func_ptr;
 		table[transcoding_count++] = item;
-	}
+	} else item->py_func = py_func;
 	return item;
 }
 

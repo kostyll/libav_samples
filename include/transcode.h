@@ -6,10 +6,16 @@
 #include "general.h"
 
 typedef int (*ProcessHandler)(
-    TranscodingFunc * func_ptr,
+    TranscodingFunc func_ptr,
     TranscodingContext * tctx,
     InputSource * source,
     Output * output,
+    AVPacket *pkt1_for_free,
+    AVPacket *pkt2_for_free,
+    AVPacket *pkt3_for_free
+);
+
+void clean_up_packets(
     AVPacket *pkt1_for_free,
     AVPacket *pkt2_for_free,
     AVPacket *pkt3_for_free
@@ -20,7 +26,7 @@ int set_process_handler(
 );
 
 int native_process_handler(
-    TranscodingFunc * func,
+    TranscodingFunc func,
     TranscodingContext * tctx,
     InputSource * source,
     Output * output,
