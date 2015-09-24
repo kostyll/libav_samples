@@ -20,6 +20,8 @@ def main():
 
     tctx = simple_ffmpeg.build_transcoding_context(source, output)
 
+    simple_ffmpeg.init_processCallback()
+
     simple_ffmpeg.registerHandler(callback, tctx.before_decode_video)
 
     simple_ffmpeg.sff_write_header(output)

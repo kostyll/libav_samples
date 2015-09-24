@@ -7,3 +7,9 @@
 
 %nothread registerHandler;
 void registerHandler(PyObject *callbackFunc, TranscodingFunc * func_ptr);
+
+
+%nothread init_processCallback;
+int init_processCallback(
+    void
+);

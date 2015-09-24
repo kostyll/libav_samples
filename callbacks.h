@@ -92,7 +92,7 @@ int python_process_handler(
 int init_processCallback(
     void
 ){
-    return set_process_handler(&python_process_handler);
+    return set_process_handler(python_process_handler);
 }
 
 #endif
