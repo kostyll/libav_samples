@@ -6,7 +6,7 @@
 
 #endif
 
-#ifdef SWIGPYTHON
+#ifdef SWIGCSHARP
 
 	typedef void CallBackFuncObject;
 

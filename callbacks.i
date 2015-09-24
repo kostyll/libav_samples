@@ -10,6 +10,8 @@
 	%}
 
 	void registerHandler(PyObject *callbackFunc, TranscodingFunc * func_ptr);
+	%nothread init_processCallback;
+
 #endif
 
 #ifdef SWIGCSHARP
@@ -17,11 +19,13 @@
 	%{
 		#include "csharp_callbacks.h"
 	%}
+	// http://www.codeproject.com/Tips/318140/How-to-make-a-callback-to-Csharp-from-C-Cplusplus
 
-	registerHandler(void *callbackFunc, TranscodingFunc * func_ptr);
+	void registerHandler(CallBackFuncObject *callbackFunc, TranscodingFunc * func_ptr);
+
 #endif
 
-%nothread init_processCallback;
+
 int init_processCallback(
     void
 );
