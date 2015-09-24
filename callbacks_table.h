@@ -27,7 +27,7 @@ struct TranscodingFuncItem * allocate_transcoding_func_item(void){
 
 struct TranscodingFuncItem * get_callback(TranscodingFunc func_ptr){
 	int i;
-	for (i = 0; i< TRANSCODING_TABLE_SIZE; i++){
+	for (i = 0; i< transcoding_count; i++){
 		if (table[i]->func_ptr == func_ptr) 
 			return table[i];
 	}
