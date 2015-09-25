@@ -9,7 +9,7 @@
 	    #include "python_callbacks.h"
 	%}
 
-	void registerHandler(PyObject *callbackFunc, TranscodingFunc * func_ptr);
+	TranscodingFunc registerHandler(PyObject *callbackFunc, TranscodingFunc func_ptr);
 	%nothread init_processCallback;
 
 #endif
@@ -21,7 +21,7 @@
 	%}
 	// http://www.codeproject.com/Tips/318140/How-to-make-a-callback-to-Csharp-from-C-Cplusplus
 
-	void registerHandler(CallBackFuncObject *callbackFunc, TranscodingFunc * func_ptr);
+	TranscodingFunc registerHandler(CallBackFuncObject *callbackFunc, TranscodingFunc func_ptr);
 
 #endif
 

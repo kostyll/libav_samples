@@ -5,6 +5,10 @@ def callback(tctx, source, output):
     print source.url, output.url
     return 1
 
+def audio_after_encode_callback(tctx, source, output):
+    print "after_encode_audio callback is called!"
+    return 1
+
 def main():
     infile = sys.argv[1]
     outfile = sys.argv[2]
@@ -22,7 +26,8 @@ def main():
 
     simple_ffmpeg.init_processCallback()
 
-    simple_ffmpeg.registerHandler(callback, tctx.before_decode_video)
+    tctx.before_decode_video = simple_ffmpeg.registerHandler(callback, tctx.before_decode_video)
+    tctx.after_encode_audio = simple_ffmpeg.registerHandler(audio_after_encode_callback, None)
 
     simple_ffmpeg.sff_write_header(output)
 

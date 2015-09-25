@@ -8,7 +8,8 @@
 
 #ifdef SWIGCSHARP
 
-	typedef void CallBackFuncObject;
+    typedef void (__stdcall * CallBackFuncObject)(int);
+    #define DLL __declspec(dllexport)
 
 #endif
 

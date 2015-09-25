@@ -11,6 +11,9 @@
 #define TRANSCODING_TABLE_SIZE 100
 typedef CallBackFuncObject;
 
+#define INTERNAL_CALLBACK 0x00
+#define EXTERNAL_CALLBACK 0x01
+
 typedef struct TranscodingFuncItem{
 	CallBackFuncObject * func_obj;
 	TranscodingFunc func_ptr;
@@ -35,9 +38,13 @@ struct TranscodingFuncItem * get_callback(TranscodingFunc func_ptr){
 	return NULL;
 }
 
-struct TranscodingFuncItem * register_callback(CallBackFuncObject * func_obj, void * func_ptr){
+struct TranscodingFuncItem * register_callback(CallBackFuncObject * func_obj, TranscodingFunc func_ptr){
 	struct TranscodingFuncItem *item;
 	item = NULL;
+	if (func_ptr == NULL){
+		func_ptr = (TranscodingFunc)malloc(sizeof(int));
+		if (func_ptr == NULL) die("Cannot allocate callback key func");
+	}
 	if (transcoding_count >= TRANSCODING_TABLE_SIZE)
 		die("Transcoding table is full");
 	item = get_callback(func_ptr);

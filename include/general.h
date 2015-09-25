@@ -62,7 +62,6 @@ Output * sff_open_output(
     int audio
 );
 
-
 typedef struct TranscodingContext TranscodingContext;
 
 typedef int (*TranscodingFunc)(InputSource *, Output *, TranscodingContext *);

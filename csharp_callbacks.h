@@ -9,7 +9,14 @@ typedef int bool;
 void registerHandler(
 	CallBackFuncObject * callbackFunc, TranscodingFunc * func_ptr
 ){
-	//
+	const bool hasCallback = 
+        callbackFunc != 0 && callbackFunc != NULL && \
+        func_ptr != 0 && func_ptr != NULL;
+
+    if (hasCallback){
+        if (register_callback(callbackFunc, func_ptr) == NULL)
+            die("Registration of callback failed");
+    }
 }
 
 int processCallback(

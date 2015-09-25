@@ -1,6 +1,8 @@
 #ifndef __CALLBACKS_H_
 #define __CALLBACKS_H_
 
+#include <stdio.h>
+
 #include <Python.h>
 
 #include "general.h"
@@ -8,17 +10,28 @@
 
 typedef int bool;
 
-void registerHandler(PyObject *callbackFunc, TranscodingFunc * func_ptr)
+TranscodingFunc registerHandler(PyObject *callbackFunc, TranscodingFunc func_ptr)
 {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    
+
     const bool hasCallback = 
         callbackFunc != 0 && callbackFunc != Py_None;
+    if (!hasCallback) return NULL;
+
+    if (func_ptr != NULL && func_ptr != 0 && func_ptr != Py_None){
+        //
+    } else {
+        func_ptr = (TranscodingFunc)malloc(sizeof(int));
+        *(int *)func_ptr = EXTERNAL_CALLBACK;
+    }
     
+    fprintf(stdout, "registering callback\n");
     if (register_callback(callbackFunc, func_ptr) == NULL)
         die("Registration of callback failed!");
 
     SWIG_PYTHON_THREAD_END_ALLOW;
+
+    return func_ptr;
     
     Py_XINCREF(callbackFunc); // to keep callback alive, don't forget to DECREF on unregiser
 }
@@ -60,7 +73,6 @@ int python_process_handler(
     AVPacket *pkt2_for_free,
     AVPacket *pkt3_for_free
 ){
-
     PyObject * func_obj = NULL;
     TranscodingFuncItem * item = NULL;
     int ret = 1;
