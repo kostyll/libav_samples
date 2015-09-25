@@ -6,15 +6,17 @@
 
 typedef int bool;
 
+// typedef int (* CallBackFuncObject)(TranscodingContext *, InputSource *, Output *);
+
 TranscodingFunc registerHandler(
-	CallBackFuncObject * callbackFunc, TranscodingFunc * func_ptr
+	CallBackFuncObject callbackFunc, TranscodingFunc * func_ptr
 ){
 	const bool hasCallback = 
         callbackFunc != 0 && callbackFunc != NULL;
 
     if (!hasCallback) return NULL;
 
-    if (func_ptr != NULL && func_ptr != 0 && func_ptr != Py_None){
+    if (func_ptr != NULL && func_ptr != 0){
         //
     } else {
         func_ptr = (TranscodingFunc)malloc(sizeof(int));
@@ -28,14 +30,14 @@ TranscodingFunc registerHandler(
 }
 
 int processCallback(
-	CallBackFuncObject * callbackFunc,
+	int (* callbackFunc)(TranscodingContext *, InputSource *, Output *),
 	TranscodingContext * tctx,
 	InputSource * source,
 	Output * output
 ){
     int result = 1;
 	if (callbackFunc){
-        result = (int)(*callbackFunc)(tctx, source, output);
+        callbackFunc(tctx, source, output);
     }
 
     return result;

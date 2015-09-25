@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 
-#include <Python.h>
-
 #include "general.h"
 #include "transcode.h"
 
