@@ -33,7 +33,12 @@ int processCallback(
 	InputSource * source,
 	Output * output
 ){
-	//
+    int result = 1;
+	if (callbackFunc){
+        result = (int)(*callbackFunc)(tctx, source, output);
+    }
+
+    return result;
 }
 
 int csharp_process_handler(

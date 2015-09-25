@@ -61,7 +61,7 @@ int processCallback(
 
     SWIG_PYTHON_THREAD_END_BLOCK;
 
-    return 1;
+    return PyInt_AsLong(result);
 }
 
 int python_process_handler(
