@@ -6,17 +6,25 @@
 
 typedef int bool;
 
-void registerHandler(
+TranscodingFunc registerHandler(
 	CallBackFuncObject * callbackFunc, TranscodingFunc * func_ptr
 ){
 	const bool hasCallback = 
-        callbackFunc != 0 && callbackFunc != NULL && \
-        func_ptr != 0 && func_ptr != NULL;
+        callbackFunc != 0 && callbackFunc != NULL;
 
-    if (hasCallback){
-        if (register_callback(callbackFunc, func_ptr) == NULL)
-            die("Registration of callback failed");
+    if (!hasCallback) return NULL;
+
+    if (func_ptr != NULL && func_ptr != 0 && func_ptr != Py_None){
+        //
+    } else {
+        func_ptr = (TranscodingFunc)malloc(sizeof(int));
+        *(int *)func_ptr = EXTERNAL_CALLBACK;
     }
+
+    if (register_callback(callbackFunc, func_ptr) == NULL)
+        die("Registration of callback failed");
+
+    return func_ptr;
 }
 
 int processCallback(
@@ -39,6 +47,8 @@ int csharp_process_handler(
 ){
 	CallBackFuncObject * func_obj = NULL;
 	//...
+
+    return 1;
 }
 
 int init_processCallback(void)

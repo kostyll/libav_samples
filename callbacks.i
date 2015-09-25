@@ -1,9 +1,9 @@
 // Register a callback (called from Python code)
 // callbackFunc is a Python callable accepting one argument
 
-%nothread registerHandler;
-
 #ifdef SWIGPYTHON
+
+	%nothread registerHandler;
 
 	%{
 	    #include "python_callbacks.h"

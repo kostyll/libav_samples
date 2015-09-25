@@ -338,6 +338,15 @@ add_library(
 
 )
 
+# set_target_properties(
+#  simple_ffmpeg
+#  PROPERTIES
+#  COMPILE_FLAGS 
+#  "--add-stdcall-alias"
+# )
+
+# target_compile_options(simple_ffmpeg PRIVATE "--add-stdcall-alias")
+
 target_link_libraries(
     simple_ffmpeg -lavcodec -lavformat -lavutil -lswresample -lswscale
 )
