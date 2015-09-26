@@ -1,3 +1,6 @@
 [submodule "FFmpegTutorial"]
 	path = materials/FFmpegTutorial
 	url = git@github.com:kostyll/FFmpegTutorial.git
+[submodule "FFmpeg"]
+	path = FFmpeg
+	url = https://github.com/FFmpeg/FFmpeg.git
