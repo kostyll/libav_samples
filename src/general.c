@@ -521,7 +521,7 @@ int sff_network_init(void){
 //SOME OTHER UTILS
 
 void sff_dump_format(void * source_output, char* filename){
-    av_dump_format((InputSource*)source_output, 0, filename, 1);
+    av_dump_format(((InputSource*)source_output)->ctx, 0, filename, 1);
 }
 
 //FILE FUNCTIONS

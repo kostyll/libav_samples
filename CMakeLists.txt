@@ -279,6 +279,11 @@ execute_process(
     COMMAND touch ${CS_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c
 )
 
+add_library(
+    sff SHARED
+    ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
+)
+
 
 add_custom_target(
     python_make_outdir
