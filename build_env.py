@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import clime
+import sh
 
 """
 
@@ -107,6 +108,22 @@ def build_cmake_static_cmd():
 
 def build_cmake_shared_cmd():
     return build_cmake_project(case='shared')
+
+
+def run_clean_rm_cmd():
+    try:
+        p = sh.make('clean')
+        print "make clean was done"
+    except sh.ErrorReturnCode, e:
+        print e
+    sh.rm(
+        '-rf',
+        'CMakeFiles/',
+        'CMakeCache.txt',
+        'Makefile'
+    )
+    print "removed cache..."
+
 
 if __name__ == '__main__':
     import clime
