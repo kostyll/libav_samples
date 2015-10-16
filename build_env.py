@@ -53,7 +53,7 @@ def test_cmd():
 
 
 def build_win32_mxe(case=None, libs=None):
-    ret = os.chdir('/cross')
+    ret = os.chdir('/cross/mxe')
     if ret < 0:
         print "/cross dirrectory was not created!" 
 
@@ -72,6 +72,10 @@ def build_win32_mxe_static_cmd(libs=None):
 
 def build_win32_mxe_shared_cmd(libs=None):
     return build_win32_mxe(case="shared", libs=libs)
+
+
+def build_win32_mxe_cmd(libs=None):
+    return build_win32_mxe(libs=libs)
 
 
 def enter_environment(case=None):
@@ -99,7 +103,9 @@ def build_cmake_project(case=None):
             case = 'static'
         else:
             case = os.environ['MXE_MODE']
-    return os.system("cmake -DCMAKE_TOOLCHAIN_FILE=%s/usr/i686-w64-mingw32.%s/%s/cmake/mxe-conf.cmake ." % CROSS_MXE, case, case)
+    cmd = "cmake -DCMAKE_TOOLCHAIN_FILE=%s/usr/i686-w64-mingw32.%s/share/cmake/mxe-conf.cmake ." % (CROSS_MXE, case)
+    print "Running '%s'" % cmd
+    return os.system(cmd)
 
 
 def build_cmake_static_cmd():
