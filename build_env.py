@@ -59,10 +59,16 @@ def build_win32_mxe(case=None, libs=None):
 
     if libs is None:
         libs = []
-    cmd = "make MXE_TARGETS='%s' %s" % (
+    if isinstance(libs, str):
+        libs = libs.split(" ")
+    if isinstance(case, (list, tuple)):
+        case = map(lambda x: 'i686-w64-mingw32.' + x, case)
+    print "libs to install = %s " % libs
+    cmd = "make %s MXE_TARGETS='%s' " % (
+        " ".join(libs),
         " ".join(case) if case else "i686-w64-mingw32.static",
-        " ".join(libs)
     )
+    print "Running '%s'" % cmd
     return os.system(cmd)
 
 
@@ -75,7 +81,7 @@ def build_win32_mxe_shared_cmd(libs=None):
 
 
 def build_win32_mxe_cmd(libs=None):
-    return build_win32_mxe(libs=libs)
+    return build_win32_mxe(case=["static", "shared"],libs=libs)
 
 
 def enter_environment(case=None):
