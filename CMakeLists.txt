@@ -64,7 +64,7 @@ add_executable(
 
 target_link_libraries(
     test_video_convert 
-    ${FFMPEG_LIBRARIES} swresample swscale 
+    ${FFMPEG_LIBRARIES} swresample swscale
 )
 
 target_link_libraries(
@@ -103,7 +103,14 @@ add_library(
     ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
+add_library(
+    libsff STATIC
+    ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
+)
+
 target_link_libraries(sff ${FFMPEG_LIBRARIES} swresample swscale )
+
+target_link_libraries(libsff ${FFMPEG_LIBRARIES} swresample swscale )
 
 if (PYTHONLIBS_FOUND)
     add_custom_target(
