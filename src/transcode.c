@@ -178,14 +178,6 @@ void process_audio_packet(
         &tctx->copy_current_packet
     ) < 0) die("Cannot decode audio packet");
 
-    ret = (*current_process_handler)(
-        tctx->after_decode_audio, tctx,
-        source, output,
-        &tctx->copy_current_packet, &tctx->curr_packet, NULL);
-    if (ret < 0)
-        die("Fatal error during processing after decode audio packet");
-    else if (ret == 0) return ret;
-
     tctx->iaframe->pts = av_rescale_q_rnd(
         tctx->copy_current_packet.pts,
         source->audio_st->time_base,
@@ -193,6 +185,13 @@ void process_audio_packet(
         AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX
     );
     if (frame_finished){
+        ret = (*current_process_handler)(
+            tctx->after_decode_audio, tctx,
+            source, output,
+            &tctx->copy_current_packet, &tctx->curr_packet, NULL);
+        if (ret < 0)
+            die("Fatal error during processing after decode audio packet");
+        else if (ret == 0) return ret;
         convertedData = NULL;
         if (av_samples_alloc(
             &convertedData,
