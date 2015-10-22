@@ -196,6 +196,30 @@ void process_audio_packet(
         INT THIS PLACE THERE IS A NEED TO CHECK BUFFER SIZE OF samples_converted_data
         IF THE IN/OUT FRAME SIZE IS VARIABLE 
         */
+        int samples_buffer_size = av_samples_get_buffer_size(
+            NULL,
+            output->actx->channels,
+            tctx->oaframe->nb_samples,
+            output->actx->sample_fmt,
+            0
+        );
+
+        if ( samples_buffer_size != tctx->samples_buffer_size){
+            fprintf(stdout,
+                "samples_buffer_size = %d\ntctx->samples_buffer_size = %d\n",
+            samples_buffer_size, tctx->samples_buffer_size);
+            fprintf(stdout, "Reallocating samples_buffer\n" );
+             // av_freep(&tctx->samples_buffer_size);
+            /*REALLOCATING BUFFER */
+            tctx->samples_buffer_size = av_samples_alloc(
+                &tctx->samples_converted_data,
+                NULL,
+                output->actx->channels,
+                tctx->oaframe->nb_samples,
+                output->actx->sample_fmt,
+            0);
+            if (tctx->samples_buffer_size < 0) die("Cannot allocate samples");
+        };
 
         int outSamples = swr_convert(
             tctx->swr_ctx,

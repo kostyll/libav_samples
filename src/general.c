@@ -494,7 +494,8 @@ TranscodingContext * build_transcoding_context(
     /* POTENTIAL ERROR IF INPUT OR OUTPUT AUDIO FRAME SIZE IS VARIABLE
     * NEED TO BE REALLOCATED IF THERE IS A NEED - FOR THE FUTURE
     */
-    ret = av_samples_alloc(
+    // ctx->samples_converted_data = NULL;
+    ret  = av_samples_alloc(
         &ctx->samples_converted_data,
         NULL,
         output->actx->channels,
@@ -502,7 +503,9 @@ TranscodingContext * build_transcoding_context(
         output->actx->sample_fmt,
     0);
     if (ret < 0) die("Cannot allocate samples");
+    fprintf(stdout, "calculated sbs = %d\n", ret );
 
+    ctx->samples_buffer_size = (int)ret;
 
     return ctx;
 }

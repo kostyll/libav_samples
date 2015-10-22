@@ -83,7 +83,8 @@ struct TranscodingContext{
 
     int dest_pict_buffer_size;
     uint8_t * dest_pict_buffer;
-    uint8_t ** samples_converted_data;
+    int samples_buffer_size;
+    int samples_linesize;
     void * internal_ptr;
 
     TranscodingFunc before_decode_video;
@@ -100,7 +101,7 @@ struct TranscodingContext{
 
     int first_vpts;
     int first_apts;
-
+    uint8_t ** samples_converted_data; /* NEED TO BE THE LAST!!! UNKNOWN ERROR! */
 };
 
 TranscodingContext * build_transcoding_context(InputSource * source, Output * output);
