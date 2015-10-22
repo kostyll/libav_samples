@@ -388,6 +388,7 @@ TranscodingContext * build_transcoding_context(
     Output * output
 ){
     TranscodingContext * ctx = NULL;
+    int ret;
     if ((ctx = av_malloc(sizeof(TranscodingContext))) == NULL)
         die("Cannot allocate TranscodingContext");
 
@@ -489,6 +490,19 @@ TranscodingContext * build_transcoding_context(
     ctx->after_convert_audio = NULL;
     ctx->before_encode_audio = NULL;
     ctx->after_encode_audio = NULL;
+
+    /* POTENTIAL ERROR IF INPUT OR OUTPUT AUDIO FRAME SIZE IS VARIABLE
+    * NEED TO BE REALLOCATED IF THERE IS A NEED - FOR THE FUTURE
+    */
+    ret = av_samples_alloc(
+        &ctx->samples_converted_data,
+        NULL,
+        output->actx->channels,
+        ctx->oaframe->nb_samples,
+        output->actx->sample_fmt,
+    0);
+    if (ret < 0) die("Cannot allocate samples");
+
 
     return ctx;
 }

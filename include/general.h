@@ -83,6 +83,7 @@ struct TranscodingContext{
 
     int dest_pict_buffer_size;
     uint8_t * dest_pict_buffer;
+    uint8_t ** samples_converted_data;
     void * internal_ptr;
 
     TranscodingFunc before_decode_video;

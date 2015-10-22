@@ -159,7 +159,6 @@ void process_audio_packet(
     int frame_finished;
     int frame_encoded;
     int ret;
-    uint8_t ** convertedData;
 
     av_copy_packet(&tctx->copy_current_packet, &tctx->curr_packet);
 
@@ -192,14 +191,12 @@ void process_audio_packet(
         if (ret < 0)
             die("Fatal error during processing after decode audio packet");
         else if (ret == 0) return ret;
-        convertedData = NULL;
-        if (av_samples_alloc(
-            &convertedData,
-            NULL,
-            output->actx->channels,
-            tctx->oaframe->nb_samples,
-            output->actx->sample_fmt,
-            0) < 0) die("Cannot allocate samples");
+
+        /*
+        INT THIS PLACE THERE IS A NEED TO CHECK BUFFER SIZE OF samples_converted_data
+        IF THE IN/OUT FRAME SIZE IS VARIABLE 
+        */
+
         int outSamples = swr_convert(
             tctx->swr_ctx,
             NULL,
@@ -214,7 +211,7 @@ void process_audio_packet(
             if (outSamples < output->actx->frame_size) break;
             outSamples = swr_convert(
                 tctx->swr_ctx,
-                &convertedData,
+                &tctx->samples_converted_data,
                 tctx->oaframe->nb_samples,
                 NULL,
                 0
@@ -231,7 +228,7 @@ void process_audio_packet(
                 tctx->oaframe,
                 output->actx->channels,
                 output->actx->sample_fmt,
-                convertedData,
+                tctx->samples_converted_data,
                 buffer_size,
                 0) < 0) die("Could not fill frame");
 
@@ -295,7 +292,7 @@ void process_audio_packet(
             }
 
         }
-        if (convertedData) av_free(&convertedData[0]);
+        //if (convertedData) av_free(&convertedData[0]);
     }
 }
 
