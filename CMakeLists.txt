@@ -10,23 +10,25 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w  -ggdb -O0 ")
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "./")
-find_package(FFMPEG REQUIRED)
 find_package(PythonLibs)
+
+if (UNIX)
+    include_directories(
+        target_usr/include
+    )
+    link_directories(
+        target_usr/lib
+    )
+else (UNIX)
+    find_package(FFMPEG REQUIRED)
+    include_directories(
+        ${FFMPEG_INCLUDE_DIR}
+    )
+endif(UNIX)
 
 include_directories(
     ./
     ./include
-    ${FFMPEG_INCLUDE_DIR}
-)
-
-if(UNIX)
-    include_directories(target_usr/include)
-    link_directories(target_usr/lib)
-endif(UNIX)
-
-
-link_directories(
-    ${FFMPEG_LIBRARIES}
 )
 
 if (PYTHONLIBS_FOUND)
@@ -49,6 +51,14 @@ set(SRC_DIR "src")
 
 set(TEST_DIR "test")
 
+set(UNIX_LOCAL_FFMPEG
+    avcodec
+    avformat
+    avutil
+    swscale
+    swresample
+)
+
 add_executable(
     test_video_convert
     ${TEST_DIR}/${SOURCE_VIDEO_CONVERT}
@@ -62,15 +72,14 @@ add_executable(
     ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
-target_link_libraries(
-    test_video_convert 
-    ${FFMPEG_LIBRARIES} swresample swscale
-)
 
-target_link_libraries(
-    test_transcoder
-    ${FFMPEG_LIBRARIES} swresample swscale 
-)
+if (UNIX)
+    target_link_libraries(test_video_convert ${UNIX_LOCAL_FFMPEG})
+    target_link_libraries(test_transcoder ${UNIX_LOCAL_FFMPEG})
+else (UNIX)
+    target_link_libraries(test_video_convert ${FFMPEG_LIBRARIES} swscale swresample)
+    target_link_libraries(test_transcoder ${FFMPEG_LIBRARIES} swscale swresample)
+endif(UNIX)
 
 set_target_properties(test_video_convert PROPERTIES 
   RUNTIME_OUTPUT_DIRECTORY "${TEST_DIR}"
@@ -108,9 +117,16 @@ add_library(
     ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
 )
 
-target_link_libraries(sff ${FFMPEG_LIBRARIES} swresample swscale )
 
-target_link_libraries(libsff ${FFMPEG_LIBRARIES} swresample swscale )
+
+if (UNIX)
+    target_link_libraries(sff ${UNIX_LOCAL_FFMPEG})
+    target_link_libraries(libsff ${UNIX_LOCAL_FFMPEG})
+else (UNIX)
+    target_link_libraries(sff ${FFMPEG_LIBRARIES} swscale swresample)
+    target_link_libraries(libsff ${FFMPEG_LIBRARIES} swscale swresample)
+endif(UNIX)
+
 
 if (PYTHONLIBS_FOUND)
     add_custom_target(
@@ -128,10 +144,11 @@ if (PYTHONLIBS_FOUND)
         ${PY_OUTDIR}/${SOURCE_SWIG_INTERFACE}_wrap.c ${SRC_DIR}/${SOURCE_GENERAL} ${SRC_DIR}/${SOURCE_TRANSCODE}
     )
 
-    target_link_libraries(
-        _simple_ffmpeg
-        ${FFMPEG_LIBRARIES} swresample swscale 
-    )
+    if (UNIX)
+        target_link_libraries(_simple_ffmpeg ${UNIX_LOCAL_FFMPEG})
+    else (UNIX)
+        target_link_libraries(_simple_ffmpeg ${FFMPEG_LIBRARIES} swscale swresample)
+    endif(UNIX)
 
     set_target_properties(_simple_ffmpeg PROPERTIES 
       LIBRARY_OUTPUT_DIRECTORY "${PY_OUTDIR}"
@@ -178,10 +195,11 @@ add_library(
 
 )
 
-target_link_libraries(
-    simple_ffmpeg
-    ${FFMPEG_LIBRARIES} swresample swscale 
-)
+if (UNIX)
+    target_link_libraries(simple_ffmpeg ${UNIX_LOCAL_FFMPEG})
+else (UNIX)
+    target_link_libraries(simple_ffmpeg ${FFMPEG_LIBRARIES} swscale swresample)
+endif(UNIX)
 
 set_target_properties(simple_ffmpeg PROPERTIES PREFIX "")
 
